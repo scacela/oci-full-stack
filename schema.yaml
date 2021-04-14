@@ -1,0 +1,134 @@
+# reference for schema.yaml:
+# https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/terraformconfigresourcemanager_topic-schema.htm#schema
+title: Full Stack Variables
+description: Deploy and manage a stack with web, app and database tiers, autoscaling, and load balancing in OCI.
+schemaVersion: 1.0.0
+version: "20200302"
+locale: "en"
+
+variableGroups:
+- title: "Invisible Variables"
+  variables: 
+  - ${region}
+  - ${image}
+- title: "Network Layer"
+  variables: 
+  - ${network_compartment_ocid}
+  - ${vcn_cidr}
+  - ${subnet_lb_web_cidr}
+  - ${subnet_web_cidr}
+  - ${subnet_lb_app_cidr}
+  - ${subnet_app_cidr}
+  - ${subnet_db_cidr}
+  - ${use_ngw}
+  - ${use_sgw}
+- title: "Compute Layer"
+  variables: 
+  - ${deploy_compute}
+  - ${compute_compartment_ocid}
+  - ${compute_shape}
+
+variables:
+  # invisible
+  region:
+    type: string
+    required: true
+    description: "Region Identifier where deployment takes place (e.g. us-phoenix-1)."
+    title: "Region Identifier"
+    visible: false
+  image:
+    type: string
+    required: true
+    description: "Image OCID to assign an OS profile to compute instances."
+    title: "Image"
+    visible: false
+  # network layer
+  network_compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    description: "Compartment where deployment of network layer takes place."
+    title: "Network Compartment ID"
+  vcn_cidr:
+    type: string
+    required: true
+    description: "VCN CIDR range; range of IP space available in the VCN."
+    title: "VCN CIDR"
+    default: "10.0.0.0/16"
+    visible: true
+  subnet_lb_web_cidr:
+    type: string
+    required: true
+    description: "CIDR range for Subnet containing the Load Balancer for web servers."
+    title: "Subnet CIDR for Web Server LB"
+    default: "10.0.0.0/24"
+    visible: true
+  subnet_web_cidr:
+    type: string
+    required: true
+    description: "CIDR range for Subnet containing web servers."
+    title: "Subnet CIDR for Web Servers"
+    default: "10.0.1.0/24"
+    visible: true
+  subnet_lb_app_cidr:
+    type: string
+    required: true
+    description: "CIDR range for Subnet containing the Load Balancer for app servers."
+    title: "Subnet CIDR for App Server LB"
+    default: "10.0.2.0/24"
+    visible: true
+  subnet_app_cidr:
+    type: string
+    required: true
+    description: "CIDR range for Subnet containing app servers."
+    title: "Subnet CIDR for App Servers"
+    default: "10.0.3.0/24"
+    visible: true
+  subnet_db_cidr:
+    type: string
+    required: true
+    description: "CIDR range for Subnet containing database servers."
+    title: "Subnet CIDR for DB Servers"
+    default: "10.0.4.0/24"
+    visible: true
+  use_ngw:
+    type: boolean
+    required: true
+    description: "Check this box to provision a Network Address Translation Gateway (NAT GW or NGW) in the VCN, to be accessible from each private subnet. Provides outbound-only access from a network in OCI to the internet."
+    title: "Use NAT Gateway?"
+    default: true
+    visible: true
+  use_sgw:
+    type: boolean
+    required: true
+    description: "Check this box to provision a Service Gateway (SGW) in the VCN, to be accessible from each private subnet. Provides private access to services including Object Storage, Monitoring, Autonomous Database, etc."
+    title: "Use Service Gateway?"
+    default: true
+    visible: true
+  # compute layer
+  deploy_compute:
+    type: boolean
+    required: true
+    description: "Check this box if you wish to deploy the compute layer of the stack."
+    title: "Deploy Compute Layer?"
+    default: true
+    visible: true
+  compute_compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    description: "Compartment where deployment of compute layer takes place."
+    title: "Compute Compartment ID"
+    visible: ${deploy_compute}
+  compute_shape:
+    type: enum
+    enum:
+    - "VM.Standard2.1"
+    - "VM.Standard2.2"
+    - "VM.Standard2.4"
+    - "VM.Standard2.8"
+    - "VM.Standard2.16"
+    - "VM.Standard2.24"
+    required: true
+    description: "Shape of Compute Node"
+    title: "Compute Shape"
+    default: "VM.Standard2.1"
+    visible: ${deploy_compute}
