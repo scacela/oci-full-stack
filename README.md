@@ -29,8 +29,8 @@ Hamburger Menu &gt Governance &gt Limits, Quotas and Usage
 12. Click <b>Next</b>.
 12. On the <b>Review</b> page, review your choices for the stack deployment.
 13. Click <b>Create</b>.
-14. Click <b>Terraform Actions</b> > <b>Apply,/ > <b>Apply</b>.
-15. You can track the logs associated with the job by clicking <b>Jobs</b> > <b>Logs</b>. After the deployment has finished, review the output information at the bottom of the logs for instructions on how to access the nodes in the topology. You can also find outputs at Jobs > Outputs.
+14. Click <b>Terraform Actions</b> > <b>Apply,</b> > <b>Apply</b>.
+15. You can track the logs associated with the job by clicking <b>Jobs</b> > <b>Logs</b>. After the deployment has finished, review the output information at the bottom of the logs for instructions on how to access the nodes in the topology. You can also find outputs at <b>Jobs</b> > <b>Outputs</b>.
 
 ### Deployment via CLI Terraform
 
