@@ -21,7 +21,7 @@ Hamburger Menu &gt Governance &gt Limits, Quotas and Usage
 3. Sign into OCI.
 4. Click the hamburger icon.
 5. Hover over <b>Resource Manager</b> from the dropdown menu, and click <b>Stacks</b>.
-<b>List Scope</b>, Select the Compartment where you wish to create the stack.
+6. Under <b>List Scope</b>, Select the Compartment where you wish to create the stack.
 7. Click <b>Create Stack</b>.
 8. On the <b>Stack Information</b> page, under <b>Stack Configuration</b>, browse for and select the this project folder from your local machine.
 9. Click <b>Next</b>.
@@ -29,7 +29,7 @@ Hamburger Menu &gt Governance &gt Limits, Quotas and Usage
 12. Click <b>Next</b>.
 12. On the <b>Review</b> page, review your choices for the stack deployment.
 13. Click <b>Create</b>.
-14. Click <b>Terraform Actions</b> > <b>Apply,</b> > <b>Apply</b>.
+14. Click <b>Terraform Actions</b> > <b>Apply</b> > <b>Apply</b>.
 15. You can track the logs associated with the job by clicking <b>Jobs</b> > <b>Logs</b>. After the deployment has finished, review the output information at the bottom of the logs for instructions on how to access the nodes in the topology. You can also find outputs at <b>Jobs</b> > <b>Outputs</b>.
 
 ### Deployment via CLI Terraform
