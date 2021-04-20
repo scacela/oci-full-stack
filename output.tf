@@ -1,13 +1,8 @@
-# locals {
-#   compute_info = {
-#     public_ips = oci_core_instance.compute.*.public_ip
-#     private_ips = oci_core_instance.compute.*.private_ip
-#     display_names = oci_core_instance.compute.*.display_name
-#   }
-# }
-# output "compute_info" {
-#   value = local.compute_info
-# }
-output "ssh_key" {
-  value = tls_private_key.ssh.private_key_pem
+# private ssh key of Terraform-generated ssh key pair
+output "tf_generated_ssh_key" {
+  value = module.compute.*.ssh_key
+}
+output "compute_image" {
+  # first element for latest version
+  value = data.oci_core_images.compute_images.images[0].display_name
 }

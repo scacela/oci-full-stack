@@ -1,23 +1,26 @@
+# resources:
+# vcn, igw, ngw, sgw, sub, rt, sl
+
 # vcn
 resource "oci_core_vcn" "vcn" {
   cidr_blocks = [var.vcn_cidr]
-  dns_label      = "${local.region}${local.virtual_cloud_network}"
+  dns_label      = "${var.region_key}${var.virtual_cloud_network}"
   compartment_id = var.network_compartment_ocid
-  display_name   = "${local.region}-${local.virtual_cloud_network}"
+  display_name   = "${var.region_key}-${var.virtual_cloud_network}"
 }
-#igw
+# igw
 resource "oci_core_internet_gateway" "igw" {
   compartment_id = var.network_compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
   enabled        = true
-  display_name   = "${local.region}-${local.internet_gateway}"
+  display_name   = "${var.region_key}-${var.internet_gateway}"
 }
 # ngw
 resource "oci_core_nat_gateway" "ngw" {
   count = var.use_ngw ? 1 : 0
   compartment_id = var.network_compartment_ocid
   vcn_id = oci_core_vcn.vcn.id
-  display_name   = "${local.region}-${local.nat_gateway}"
+  display_name   = "${var.region_key}-${var.nat_gateway}"
   block_traffic = false
 }
 # sgw
@@ -28,32 +31,32 @@ resource "oci_core_service_gateway" "sgw" {
     service_id = data.oci_core_services.available_services.services[0]["id"]
   }
   vcn_id = oci_core_vcn.vcn.id
-  display_name   = "${local.region}-${local.service_gateway}"
+  display_name   = "${var.region_key}-${var.service_gateway}"
 }
 # sub
 resource "oci_core_subnet" "sub" {
-  count = length(local.infra_entities_compute_and_lb_specs)
+  count = length(var.compute_and_load_balancer_specs)
 
-  prohibit_public_ip_on_vnic = ! values(local.infra_entities_compute_and_lb_specs)[count.index].is_public
-  cidr_block        = lookup(values(local.infra_entities_compute_and_lb_specs)[count.index], "cidr")
+  prohibit_public_ip_on_vnic = ! values(var.compute_and_load_balancer_specs)[count.index].is_public
+  cidr_block        = lookup(values(var.compute_and_load_balancer_specs)[count.index], "cidr")
   compartment_id    = var.network_compartment_ocid
   vcn_id            = oci_core_vcn.vcn.id
-  display_name      = "${local.region}-${keys(local.infra_entities_compute_and_lb_specs)[count.index]}-${local.subnet}"
-  dns_label         = "${local.region}${keys(local.infra_entities_compute_and_lb_specs)[count.index]}${local.subnet}"
+  display_name      = "${var.region_key}-${keys(var.compute_and_load_balancer_specs)[count.index]}-${var.subnet}"
+  dns_label         = "${var.region_key}${keys(var.compute_and_load_balancer_specs)[count.index]}${var.subnet}"
   security_list_ids = [oci_core_security_list.sl[count.index].id]
   route_table_id    = oci_core_route_table.rt[count.index].id
 }
 # rt
 resource "oci_core_route_table" "rt" {
-  count = length(local.infra_entities_compute_and_lb_specs)
+  count = length(var.compute_and_load_balancer_specs)
 
   compartment_id = var.network_compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
-  display_name = "${local.region}-${keys(local.infra_entities_compute_and_lb_specs)[count.index]}-${local.route_table}"
+  display_name = "${var.region_key}-${keys(var.compute_and_load_balancer_specs)[count.index]}-${var.route_table}"
   # route rule for igw (for public subnets)
   dynamic route_rules {
     # if public, then add internet gateway and open ingress to public internet
-    for_each = local.infra_entities_compute_and_lb_specs[keys(local.infra_entities_compute_and_lb_specs)[count.index]].is_public ? [1] : []
+    for_each = var.compute_and_load_balancer_specs[keys(var.compute_and_load_balancer_specs)[count.index]].is_public ? [1] : []
     content { 
       network_entity_id = oci_core_internet_gateway.igw.id
       destination       = "0.0.0.0/0"
@@ -62,7 +65,7 @@ resource "oci_core_route_table" "rt" {
   }
   # route rule for ngw (for private subnets)
   dynamic route_rules {
-    for_each = var.use_ngw && ! local.infra_entities_compute_and_lb_specs[keys(local.infra_entities_compute_and_lb_specs)[count.index]].is_public ? [1] : []
+    for_each = var.use_ngw && ! var.compute_and_load_balancer_specs[keys(var.compute_and_load_balancer_specs)[count.index]].is_public ? [1] : []
     content { 
       network_entity_id = oci_core_nat_gateway.ngw[0].id
       destination       = "0.0.0.0/0"
@@ -71,7 +74,7 @@ resource "oci_core_route_table" "rt" {
   }
   # route rule for sgw (for private subnets)
   dynamic route_rules {
-    for_each = var.use_sgw && ! local.infra_entities_compute_and_lb_specs[keys(local.infra_entities_compute_and_lb_specs)[count.index]].is_public ? [1] : []
+    for_each = var.use_sgw && ! var.compute_and_load_balancer_specs[keys(var.compute_and_load_balancer_specs)[count.index]].is_public ? [1] : []
     content { 
       network_entity_id = oci_core_service_gateway.sgw[0].id
       destination       = data.oci_core_services.available_services.services.0.cidr_block
@@ -81,11 +84,11 @@ resource "oci_core_route_table" "rt" {
 }
 # sl
 resource "oci_core_security_list" "sl" {
-  count = length(local.infra_entities_compute_and_lb_specs)
+  count = length(var.compute_and_load_balancer_specs)
 
   compartment_id = var.network_compartment_ocid
   vcn_id         = oci_core_vcn.vcn.id
-  display_name   = "${local.region}-${keys(local.infra_entities_compute_and_lb_specs)[count.index]}-${local.security_list}"
+  display_name   = "${var.region_key}-${keys(var.compute_and_load_balancer_specs)[count.index]}-${var.security_list}"
 
   # tcp open for ports 22, 80, 443, 3080 and 3306.
 
@@ -97,7 +100,7 @@ resource "oci_core_security_list" "sl" {
   # inbound traffic
   ingress_security_rules {
     protocol = 6
-    source   = local.infra_entities_compute_and_lb_specs[keys(local.infra_entities_compute_and_lb_specs)[count.index]].is_public ? "0.0.0.0/0" : oci_core_vcn.vcn.cidr_blocks[0]
+    source   = "0.0.0.0/0"
 
     tcp_options {
       # ssh
@@ -107,7 +110,7 @@ resource "oci_core_security_list" "sl" {
   }
   ingress_security_rules {
     protocol = 6
-    source   = local.infra_entities_compute_and_lb_specs[keys(local.infra_entities_compute_and_lb_specs)[count.index]].is_public ? "0.0.0.0/0" : oci_core_vcn.vcn.cidr_blocks[0]
+    source   = "0.0.0.0/0"
 
     tcp_options {
       # http
@@ -117,7 +120,7 @@ resource "oci_core_security_list" "sl" {
   }
   ingress_security_rules {
     protocol = 6
-    source   = local.infra_entities_compute_and_lb_specs[keys(local.infra_entities_compute_and_lb_specs)[count.index]].is_public ? "0.0.0.0/0" : oci_core_vcn.vcn.cidr_blocks[0]
+    source   = "0.0.0.0/0"
 
     tcp_options {
       # https
@@ -127,7 +130,7 @@ resource "oci_core_security_list" "sl" {
   }
   ingress_security_rules {
     protocol = 6
-    source   = local.infra_entities_compute_and_lb_specs[keys(local.infra_entities_compute_and_lb_specs)[count.index]].is_public ? "0.0.0.0/0" : oci_core_vcn.vcn.cidr_blocks[0]
+    source   = "0.0.0.0/0"
 
     tcp_options {
       # information
@@ -137,7 +140,7 @@ resource "oci_core_security_list" "sl" {
   }
   ingress_security_rules {
     protocol = 6
-    source   = local.infra_entities_compute_and_lb_specs[keys(local.infra_entities_compute_and_lb_specs)[count.index]].is_public ? "0.0.0.0/0" : oci_core_vcn.vcn.cidr_blocks[0]
+    source   = "0.0.0.0/0"
 
     tcp_options {
       # mysql
