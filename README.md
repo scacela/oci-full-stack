@@ -4,7 +4,7 @@ Deploy and manage a stack with web, app and database tiers, autoscaling, and loa
 ### Prerequisites
 - Access to an OCI Tenancy (account)
 - (CLI Terraform deployment only) Terraform set up on your local machine. You can access the steps [here](https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/terraformgetstarted.htm).
-- OCI Policies:
+- Sample OCI Policies:
 <pre>
 
 # includes compute instance
