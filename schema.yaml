@@ -39,18 +39,18 @@ variableGroups:
   variables:
   - ${deploy_autoscaling}
   - ${autoscaling_compartment_ocid}
-  # - ${autoscaling_policy_type} # only one value is supported in this stack: threshold
-  # - ${autoscaling_node_count_initial} # redundant due to ${instance_pool_node_count_initial}
+  - ${autoscaling_policy_type} # only one value is supported in this stack: threshold
+  - ${autoscaling_node_count_initial} # redundant due to ${instance_pool_node_count_initial}
   - ${autoscaling_node_count_max}
   - ${autoscaling_node_count_min}
-  # - ${scale_in_action_type} # only one value is supported in this stack: CHANGE_COUNT_BY
+  - ${scale_in_action_type} # only one value is supported in this stack: CHANGE_COUNT_BY
   - ${scale_in_action_value}
-  # - ${scale_in_metric_type} # only one value is supported in this stack: CPU_UTILIZATION
+  - ${scale_in_metric_type} # only one value is supported in this stack: CPU_UTILIZATION
   - ${scale_in_threshold_operator}
   - ${scale_in_threshold_value}
-  # - ${scale_out_action_type} # only one value is supported in this stack: CHANGE_COUNT_BY
+  - ${scale_out_action_type} # only one value is supported in this stack: CHANGE_COUNT_BY
   - ${scale_out_action_value}
-  # - ${scale_out_metric_type} # only one value is supported in this stack: CPU_UTILIZATION
+  - ${scale_out_metric_type} # only one value is supported in this stack: CPU_UTILIZATION
   - ${scale_out_threshold_operator}
   - ${scale_out_threshold_value}
 - title: "Load Balancer Layer"
@@ -174,6 +174,8 @@ variables:
     - "VM.Standard2.8"
     - "VM.Standard2.16"
     - "VM.Standard2.24"
+    - "VM.Standard.E3.Flex"
+    - "VM.Standard.E4.Flex"
     required: true
     description: "Shape of Compute Nodes"
     title: "Compute Shape"
@@ -185,7 +187,7 @@ variables:
     description: "User-provided SSH Public Key that you can use to access your compute nodes."
     title: "SSH Public Key"
     visible: ${deploy_compute}
-  instance_configuration_shape_config_memory:
+  instance_configuration_shape_config_memory_in_gbs:
     type: integer
     required: true
     description: "Amount of memory in GiB for each compute node."
@@ -262,19 +264,20 @@ variables:
       and:
         - ${deploy_compute}
         - ${deploy_autoscaling}
-  # autoscaling_policy_type:
-  #   type: enum
-  #   enum:
-  #     - threshhold
-  #   required: true
-  #   description: "The compute nodes in a pool will scale based on some threshold that is met."
-  #   title: "Autoscaling Policy Type"
-  #   default: threshhold
-  #   visible:
-  #     and:
-  #       - ${deploy_compute}
-  #       - ${deploy_autoscaling}
-  # autoscaling_node_count_initial:
+  autoscaling_policy_type:
+    type: enum
+    enum:
+      - threshhold
+    required: true
+    description: "The compute nodes in a pool will scale based on some threshold that is met."
+    title: "Autoscaling Policy Type"
+    default: threshhold
+    visible: false
+      # and:
+      #   - ${deploy_compute}
+      #   - ${deploy_autoscaling}
+  autoscaling_node_count_initial:
+    visible: false
   autoscaling_node_count_max:
     type: integer
     required: true
@@ -297,18 +300,18 @@ variables:
       and:
         - ${deploy_compute}
         - ${deploy_autoscaling}
-  # scale_in_action_type:
-  #   type: enum
-  #   enum:
-  #     - CHANGE_COUNT_BY
-  #   required: true
-  #   description: "The compute node count will change when a scale in rule is in effect."
-  #   title: "Scale-In Action Type"
-  #   default: threshhold
-  #   visible:
-  #     and:
-  #       - ${deploy_compute}
-  #       - ${deploy_autoscaling}
+  scale_in_action_type:
+    type: enum
+    enum:
+      - CHANGE_COUNT_BY
+    required: true
+    description: "The compute node count will change when a scale in rule is in effect."
+    title: "Scale-In Action Type"
+    default: threshhold
+    visible: false
+      # and:
+      #   - ${deploy_compute}
+      #   - ${deploy_autoscaling}
   scale_in_action_value:
     type: integer
     required: true
@@ -320,18 +323,18 @@ variables:
       and:
         - ${deploy_compute}
         - ${deploy_autoscaling}
-  # scale_in_metric_type:
-  #   type: enum
-  #   enum:
-  #     - CPU_UTILIZATION
-  #   required: true
-  #   description: "The compute node count will change when a scale in rule is in effect."
-  #   title: "Scale-In Metric Type"
-  #   default: CPU_UTILIZATION
-  #   visible:
-  #     and:
-  #       - ${deploy_compute}
-  #       - ${deploy_autoscaling}
+  scale_in_metric_type:
+    type: enum
+    enum:
+      - CPU_UTILIZATION
+    required: true
+    description: "The compute node count will change when a scale in rule is in effect."
+    title: "Scale-In Metric Type"
+    default: CPU_UTILIZATION
+    visible: false
+      # and:
+      #   - ${deploy_compute}
+      #   - ${deploy_autoscaling}
   scale_in_threshold_operator:
     type: enum
     enum:
@@ -357,7 +360,8 @@ variables:
       and:
         - ${deploy_compute}
         - ${deploy_autoscaling}
-  # scale_out_action_type:
+  scale_out_action_type:
+    visible: false
   scale_out_action_value:
     type: integer
     required: true
@@ -369,7 +373,8 @@ variables:
       and:
         - ${deploy_compute}
         - ${deploy_autoscaling}
-  # scale_out_metric_type:
+  scale_out_metric_type:
+    visible: false
   scale_out_threshold_operator:
     type: enum
     enum:
