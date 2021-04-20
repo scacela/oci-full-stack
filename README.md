@@ -8,17 +8,16 @@ Deploy and manage a stack with web, app and database tiers, autoscaling, and loa
 <pre>
 
 # includes compute instance
-Allow group GROUPNAME to manage instance-family in compartment COMPARTMENTNAME
+<b>Allow group GROUPNAME to manage instance-family in compartment COMPARTMENTNAME</b>
 
 # includes instance configuration, instance pool
+<b>Allow group GROUPNAME to manage compute-management-family in compartment COMPARTMENTNAME</b>
 
-Allow group GROUPNAME to manage compute-management-family in compartment COMPARTMENTNAME
 # includes autoscaling configuration
-
-Allow group GROUPNAME to manage auto-scaling-configurations in compartment COMPARTMENTNAME
+<b>Allow group GROUPNAME to manage auto-scaling-configurations in compartment COMPARTMENTNAME</b>
 
 # includes vcn, subnets, route table, security list, internet gateway, nat gateway, service gateway
-Allow group GROUPNAME to manage virtual-network-family in compartment COMPARTMENTNAME
+<b>Allow group GROUPNAME to manage virtual-network-family in compartment COMPARTMENTNAME</b>
 
 # includes load balancer
 Allow group GROUPNAME to manage load-balancers in compartment COMPARTMENTNAME
