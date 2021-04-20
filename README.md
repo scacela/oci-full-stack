@@ -20,7 +20,7 @@ Deploy and manage a stack with web, app and database tiers, autoscaling, and loa
 <b>Allow group GROUPNAME to manage virtual-network-family in compartment COMPARTMENTNAME</b>
 
 # includes load balancer
-Allow group GROUPNAME to manage load-balancers in compartment COMPARTMENTNAME
+<b>Allow group GROUPNAME to manage load-balancers in compartment COMPARTMENTNAME</b>
 </pre>
 - Sufficient availability of resources. You can check resource availability:
 <pre>
