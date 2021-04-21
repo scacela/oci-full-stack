@@ -2,33 +2,62 @@
 Deploy and manage a stack with web, app and database tiers in OCI. Optional autoscaling configuration, and load balancing for each tier, and optional shared file storage.
 
 ### What does the stack provision?
-1. An optional Compute layer, which provisions Instance Pools that generate Compute Instances that comprise the compute tiers. Each compute tier is provisioned within its own corresponding subnet. The compute tiers are:
+<details>
+1. <summary> An optional Compute layer</summary>
+
+For Compute Instances that run workloads.
+
+Provisions Instance Pools that generate Compute Instances that comprise the compute tiers. Each compute tier is provisioned within its own corresponding subnet. The compute tiers are:
 	<p></p>
 	a. The <b>Web</b> tier. This tier <b>uses</b> public IP addresses.
 	<p></p>
 	b. The <b>App</b> tier. This tier <b>uses</b> public IP addresses.
 	<p></p>
 	c. The <b>Database</b> tier. This compute tier <b>prohibits</b> Public IP addresses.
+</details>
+<details>
+2. <summary>An optional Load Balancer layer</summary>
 
-2. An optional Load Balancer layer, which provisions resources that comprise the load balancer tiers. Each load balancer tier is provisioned within its own corresponding subnet. The load balancer tiers are:
+For load balancing the Compute Instances in select compute tiers.
+
+Provisions resources that comprise the load balancer tiers. Each load balancer tier is provisioned within its own corresponding subnet. The load balancer tiers are:
 	<p></p>
 	a. The <b>Load Balancer for Web</b> tier. This tier <b>uses</b> public IP addresses.
 	<p></p>
 	b. The <b>Load Balancer for App</b> tier. This tier <b>prohibits</b> public IP addresses.
 	<p></p>
-Each load balancer tier load balances a corresponding compute tier by associating with its respective instance pool.
+	Each load balancer tier load balances a corresponding compute tier by associating with its respective instance pool.
+</details>
+<details>
+3. <summary>A Network layer</summary>
 
-3. A Network layer, which provisions a subnet for each compute tier and for each load balancer tier within a single VCN. The subnets are provisioned with security lists and route tables, and the VCN is provisioned with an internet gateway and optional NAT Gateway and optional Service Gateway. Security list rules and gateway access via route rules are assigned to each subnet based on whether the subnet allows or prohibits public IP addresses.
+For hosting and provide access to Compute Instances. 
 
-4. An optional Autoscaling Configuration layer, which provisions an Autoscaling Configuration for each compute tier that associates with its respective instance pool. The threshold-based metric that triggers the autoscaling action is CPU Utilization.
+Provisions a subnet for each compute tier and for each load balancer tier within a single VCN. The subnets are provisioned with security lists and route tables, and the VCN is provisioned with an internet gateway and optional NAT Gateway and optional Service Gateway. Security list rules and gateway access via route rules are assigned to each subnet based on whether the subnet allows or prohibits public IP addresses.
+</details>
+<details>
+4. <summary>An optional Autoscaling Configuration layer</summary>
 
-5. An optional File Storage layer. This layer provisions File Storage Service resources within a designated subnet that is also provisioned as part of this layer. The subnet <b>prohibits</b> public IP addresses.
-	<p></p>
-	a. Instances that are generated as part of the instance pool optionally connect to file storage service, with File Storage Service resources in its own private subnet.
+For autoscaling the number of Compute Instances in any given compute tier.
 
-6. An optional Bastion layer, for accessibility into the stack. This layer provisions a Compute Instance with a public IP address to serve as a bastion node, within a designated subnet that is also provisioned as part of this layer. The bastion node has a public IP address.
+Provisions an Autoscaling Configuration for each compute tier that associates with its respective instance pool. The threshold-based metric that triggers the autoscaling action is CPU Utilization.
+</details>
+<details>
+5. <summary>An optional File Storage layer</summary>
+Provisions File Storage Service resources within a designated subnet that is also provisioned as part of this layer. The subnet <b>prohibits</b> public IP addresses. Instances that are generated as part of the instance pool in any compute tier connects to the file storage service.
+</details>
+<details>
+6. <summary>An optional Bastion layer</summary>
 
-7. A new SSH key pair for accessing all Compute Instances in the stack.
+For accessing the stack.
+
+This layer provisions a Compute Instance with a public IP address to serve as a bastion node, within a designated subnet that is also provisioned as part of this layer. The bastion node has a public IP address.
+</details>
+<details>
+7. <summary>A new SSH key pair</summary>
+
+For accessing all Compute Instances in the stack.
+</details>
 
 ### Prerequisites
 - Access to an OCI Tenancy (account)
