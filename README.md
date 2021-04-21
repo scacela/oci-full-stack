@@ -4,16 +4,16 @@ Deploy and manage a stack with web, app and database tiers in OCI. Optional auto
 ### What does the stack provision?
 <details>
 <summary>Compute layer (optional)</summary>
-<p></p>
-For Compute Instances that run workloads.
-<p></p>
-Provisions Instance Pools that generate Compute Instances that comprise the compute tiers. Each compute tier is provisioned within its own corresponding subnet. The compute tiers are:
 	<p></p>
-	a. The <b>Web</b> tier. This tier <b>uses</b> public IP addresses.
+	For Compute Instances that run workloads.
 	<p></p>
-	b. The <b>App</b> tier. This tier <b>uses</b> public IP addresses.
-	<p></p>
-	c. The <b>Database</b> tier. This compute tier <b>prohibits</b> Public IP addresses.
+	Provisions Instance Pools that generate Compute Instances that comprise the compute tiers. Each compute tier is provisioned within its own corresponding subnet. The compute tiers are:
+		<p></p>
+		a. The <b>Web</b> tier. This tier <b>uses</b> public IP addresses.
+		<p></p>
+		b. The <b>App</b> tier. This tier <b>uses</b> public IP addresses.
+		<p></p>
+		c. The <b>Database</b> tier. This compute tier <b>prohibits</b> Public IP addresses.
 </details>
 <details>
 <summary>Load Balancer layer (optional)</summary>
