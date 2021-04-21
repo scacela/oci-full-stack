@@ -5,7 +5,7 @@ Deploy and manage a stack with web, app and database tiers in OCI. Optional auto
 <details>
 <summary>Compute layer (optional)</summary>
 	<p></p>
-	For Compute Instances that run workloads.
+	+For Compute Instances that run workloads.
 	<p></p>
 	Provisions Instance Pools that generate Compute Instances that comprise the compute tiers. Each compute tier is provisioned within its own corresponding subnet. The compute tiers are:
 		<p></p>
