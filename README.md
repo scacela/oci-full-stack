@@ -7,7 +7,7 @@ Deploy and manage a stack with web, app and database tiers in OCI. Optional auto
 	b. The <b>App</b> tier. This tier <b>uses</b> public IP addresses.
 	c. The <b>Database</b> tier. This compute tier <b>prohibits</b> Public IP addresses.
 2. An optional Load Balancer layer, which provisions resources that comprise the load balancer tiers. Each load balancer tier is provisioned within its own corresponding subnet. The load balancer tiers are:
-	a. The <b>Load Balancer for Web</b> tier. This tier <b>uses<b> public IP addresses.
+	a. The <b>Load Balancer for Web</b> tier. This tier <b>uses</b> public IP addresses.
 	b. The <b>Load Balancer for App</b> tier. This tier <b>prohibits</b> public IP addresses.
 Each load balancer tier load balances a corresponding compute tier by associating with its respective instance pool.
 3. A Network layer, which provisions a subnet for each compute tier and for each load balancer tier within a single VCN. The subnets are provisioned with security lists and route tables, and the VCN is provisioned with an internet gateway and optional NAT Gateway and optional Service Gateway. Security list rules and gateway access via route rules are assigned to each subnet based on whether the subnet allows or prohibits public IP addresses.
