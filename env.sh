@@ -27,21 +27,20 @@ export TF_VAR_instance_configuration_shape_config_memory_in_gbs=32
 export TF_VAR_instance_configuration_shape_config_ocpus=8
 export TF_VAR_instance_pool_node_count_initial=1
 export TF_VAR_oracle_linux_os_version=7.9
+# bastion
+export TF_VAR_use_bastion=true
+export TF_VAR_subnet_cidr_bastion="10.0.5.0/24"
+export TF_VAR_bastion_oracle_linux_os_version="7.9"
+export TF_VAR_bastion_shape="VM.Standard2.1"
 # autoscale
 export TF_VAR_deploy_autoscaling=true
 export TF_VAR_autoscaling_compartment_ocid=YOUR_COMPARTMENT_OCID
-# export TF_VAR_autoscaling_policy_type="threshold"
-# export TF_VAR_autoscaling_node_count_initial=2
 export TF_VAR_autoscaling_node_count_max=4
 export TF_VAR_autoscaling_node_count_min=1
-# export TF_VAR_scale_in_action_type="CHANGE_COUNT_BY"
 export TF_VAR_scale_in_action_value=-1
-# export TF_VAR_scale_in_metric_type="CPU_UTILIZATION"
 export TF_VAR_scale_in_threshold_operator="LT"
 export TF_VAR_scale_in_threshold_value=10
-# export TF_VAR_scale_out_action_type="CHANGE_COUNT_BY"
 export TF_VAR_scale_out_action_value=1
-# export TF_VAR_scale_out_metric_type="CPU_UTILIZATION"
 export TF_VAR_scale_out_threshold_operator="GT"
 export TF_VAR_scale_out_threshold_value=50
 # load balancer
@@ -54,3 +53,8 @@ export TF_VAR_backend_port=80
 export TF_VAR_listener_port=80
 export TF_VAR_listener_protocol="TCP"
 export TF_VAR_load_balancer_health_check_url_path="/"
+# file storage
+export TF_VAR_deploy_fss=true
+export TF_VAR_fss_compartment_ocid=YOUR_COMPARTMENT_OCID
+export TF_VAR_fss_export_path="/FSS"
+export TF_VAR_subnet_cidr_fss="10.0.6.0/24"

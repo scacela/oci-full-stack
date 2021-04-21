@@ -35,6 +35,10 @@ variableGroups:
   - ${oracle_linux_os_version}
   - ${use_custom_image}
   - ${custom_image_ocid}
+  - ${use_bastion}
+  - ${subnet_cidr_bastion}
+  - ${bastion_oracle_linux_os_version}
+  - ${bastion_shape}
 - title: "Autoscaling Layer"
   variables:
   - ${deploy_autoscaling}
@@ -64,6 +68,12 @@ variableGroups:
   - ${listener_port}
   - ${listener_protocol}
   - ${load_balancer_health_check_url_path}
+- title: "File Storage Layer"
+  variables:
+- ${deploy_fss}
+- ${fss_compartment_ocid}
+- ${fss_export_path}
+- ${subnet_cidr_fss}
 
 variables:
   # invisible
@@ -247,6 +257,57 @@ variables:
     title: "Oracle Linux OS Version"
     default: "7.9"
     visible: ${deploy_compute}
+  use_bastion:
+    type: boolean
+    required: true
+    description: "Check this box if you wish to deploy a bastion compute within a bastion subnet to help with accessibility."
+    title: "Deploy Bastion?"
+    default: true
+    visible: ${deploy_compute}
+  subnet_cidr_bastion:
+    type: string
+    required: true
+    description: "CIDR range for Subnet containing the bastion node."
+    title: "Subnet CIDR for Bastion Node"
+    default: "10.0.5.0/24"
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${use_bastion}
+  bastion_oracle_linux_os_version:
+    type: enum
+    enum:
+      - "7.9"
+      - "7.8"
+      - "7.7"
+      - "7.6"
+    required: true
+    description: "Version of Oracle Linux to use for the bastion compute node."
+    title: "Oracle Linux OS Version (Bastion)"
+    default: "7.9"
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${use_bastion}
+  bastion_shape:
+    type: enum
+    enum:
+    - "VM.Standard2.1"
+    - "VM.Standard2.2"
+    - "VM.Standard2.4"
+    - "VM.Standard2.8"
+    - "VM.Standard2.16"
+    - "VM.Standard2.24"
+    - "VM.Standard.E3.Flex"
+    - "VM.Standard.E4.Flex"
+    required: true
+    description: "Shape of the bastion compute node."
+    title: "Compute Shape (Bastion)"
+    default: "VM.Standard2.1"
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${use_bastion}
   # autoscaling layer
   deploy_autoscaling:
     type: boolean
@@ -477,3 +538,30 @@ variables:
     title: "Load Balancer Health Check URL Path"
     default: /
     visible: ${deploy_load_balancer}
+# file_storage_layer
+  deploy_fss:
+    type: boolean
+    required: true
+    description: "Check this box if you wish to deploy the File Storage Service layer of the stack."
+    title: "Deploy FSS Layer?"
+    default: true
+    visible: true
+  fss_compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    description: "Compartment where deployment of File Storage Service layer takes place."
+    title: "FSS Compartment ID"
+    visible: ${deploy_fss}
+  fss_export_path:
+    type: string
+    description: "Specify the File Storage Service export path in OCI to mount to."
+    title: "FSS Export Path"
+    default: /FSS
+    visible: ${deploy_fss}
+  subnet_cidr_fss:
+    type: string
+    required: true
+    description: "CIDR range for Subnet containing File Storage Service resources."
+    title: "Subnet CIDR for FSS"
+    default: "10.0.6.0/24"
+    visible: ${deploy_fss}

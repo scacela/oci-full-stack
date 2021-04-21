@@ -15,12 +15,21 @@ data "oci_identity_regions" "available_regions" {
     regex = false
   }
 }
-# images
+# images (compute module)
 data "oci_core_images" "compute_images" {
     compartment_id = var.compute_compartment_ocid
     operating_system = "Oracle Linux"
     operating_system_version = var.oracle_linux_os_version
     shape = var.instance_configuration_shape
+    sort_by = "TIMECREATED"
+    sort_order = "DESC"
+}
+# images (bastion module)
+data "oci_core_images" "bastion_images" {
+    compartment_id = var.compute_compartment_ocid
+    operating_system = "Oracle Linux"
+    operating_system_version = var.bastion_oracle_linux_os_version
+    shape = var.bastion_shape
     sort_by = "TIMECREATED"
     sort_order = "DESC"
 }

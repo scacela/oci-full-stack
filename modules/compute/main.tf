@@ -1,11 +1,5 @@
 # resources:
-# ssh private key, instance configuration, instance pool
-
-# ssh private key
-resource "tls_private_key" "ssh" {
-  algorithm = "RSA"
-  rsa_bits  = "4096"
-}
+# instance configuration, instance pool
 
 # instance configuration
 resource "oci_core_instance_configuration" "ic" {
@@ -17,7 +11,8 @@ resource "oci_core_instance_configuration" "ic" {
         instance_type = "compute"
         launch_details {
             metadata = {
-                ssh_authorized_keys = "${var.instance_configuration_ssh_public_key}\n${tls_private_key.ssh.public_key_openssh}"
+                ssh_authorized_keys = "${var.instance_configuration_ssh_public_key}\n${var.tf_generated_ssh_key_pub}"
+                user_data           = var.deploy_fss ? base64encode(data.template_file.configure_fss.rendered) : null
             }
             availability_domain = var.ad_name
             compartment_id = var.compute_compartment_ocid

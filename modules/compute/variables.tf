@@ -5,12 +5,16 @@ variable "instance_configuration_shape" {}
 variable "instance_configuration_shape_config_memory_in_gbs" {}
 variable "instance_configuration_shape_config_ocpus" {}
 variable "region" {}
+variable "tf_generated_ssh_key_pub" {}
 variable "backend_port" {}
 variable "compute_load_balanced" {}
 variable "compute_load_balanced_and_load_balancer" {}
 variable "deploy_load_balancer" {}
 variable "instance_pool_node_count_initial" {}
 variable "image_ocid" {}
+variable "mount_target_private_ip" {}
+variable "fss_export_path" {}
+variable "deploy_fss" {}
 variable "lb_displaynames_and_ocids" {}
 variable "subnet_displaynames_and_ocids" {}
 # naming convention

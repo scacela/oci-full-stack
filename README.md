@@ -1,5 +1,5 @@
 # oci-full-stack
-Deploy and manage a stack with web, app and database tiers, autoscaling, and load balancer in OCI.
+Deploy and manage a stack with web, app and database tiers in OCI. Optional autoscaling configuration, and load balancing for each tier, and optional shared file storage.
 
 ### Prerequisites
 - Access to an OCI Tenancy (account)
@@ -7,20 +7,23 @@ Deploy and manage a stack with web, app and database tiers, autoscaling, and loa
 - Sample OCI Policies:
 <pre>
 
-# includes compute instance
+# includes instances, instance-images
 <b>Allow group GROUPNAME to manage instance-family in compartment COMPARTMENTNAME</b>
 
-# includes instance configuration, instance pool
+# includes instance-configurations, instance-pools
 <b>Allow group GROUPNAME to manage compute-management-family in compartment COMPARTMENTNAME</b>
 
 # includes autoscaling configuration
 <b>Allow group GROUPNAME to manage auto-scaling-configurations in compartment COMPARTMENTNAME</b>
 
-# includes vcn, subnets, route table, security list, internet gateway, nat gateway, service gateway
+# includes vcns, subnets, route-tables, security-lists, private-ips, public-ips, internet-gateways, nat-gateways, service-gateways
 <b>Allow group GROUPNAME to manage virtual-network-family in compartment COMPARTMENTNAME</b>
 
-# includes load balancer
+# includes load-balancers
 <b>Allow group GROUPNAME to manage load-balancers in compartment COMPARTMENTNAME</b>
+
+# includes file-systems, mount-targets, export-sets
+<b>Allow group GROUPNAME to manage file-family in compartment COMPARTMENTNAME</b>
 </pre>
 - Sufficient availability of resources. You can check resource availability:
 <pre>

@@ -20,6 +20,11 @@ variable "instance_configuration_shape_config_memory_in_gbs" { default = 32 }
 variable "instance_configuration_shape_config_ocpus" { default = 8 }
 variable "instance_pool_node_count_initial" { default = 1 }
 variable "oracle_linux_os_version" { default = "7.9" }
+# bastion
+variable "use_bastion" {default = true }
+variable "subnet_cidr_bastion" { default = "10.0.5.0/24" }
+variable "bastion_oracle_linux_os_version" { default = "7.9" }
+variable "bastion_shape" { default = "VM.Standard2.1" }
 # autoscale
 variable "deploy_autoscaling" { default = true }
 variable "autoscaling_compartment_ocid" {}
@@ -47,3 +52,8 @@ variable "backend_port" { default = 80 }
 variable "listener_port" { default = 80 }
 variable "listener_protocol" { default = "TCP" }
 variable "load_balancer_health_check_url_path" { default = "/" }
+# file storage
+variable "deploy_fss" { default = true }
+variable "fss_compartment_ocid" {}
+variable "fss_export_path" { default = "/FSS" }
+variable "subnet_cidr_fss" { default = "10.0.6.0/24" }

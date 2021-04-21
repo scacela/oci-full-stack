@@ -43,7 +43,7 @@ resource "oci_core_subnet" "sub" {
   vcn_id            = oci_core_vcn.vcn.id
   display_name      = "${var.region_key}-${keys(var.compute_and_load_balancer_specs)[count.index]}-${var.subnet}"
   dns_label         = "${var.region_key}${keys(var.compute_and_load_balancer_specs)[count.index]}${var.subnet}"
-  security_list_ids = [oci_core_security_list.sl[count.index].id]
+  security_list_ids = [oci_core_security_list.sl[count.index].id, oci_core_security_list.sl_fss[count.index].id]
   route_table_id    = oci_core_route_table.rt[count.index].id
 }
 # rt
@@ -55,7 +55,7 @@ resource "oci_core_route_table" "rt" {
   display_name = "${var.region_key}-${keys(var.compute_and_load_balancer_specs)[count.index]}-${var.route_table}"
   # route rule for igw (for public subnets)
   dynamic route_rules {
-    # if public, then add internet gateway and open ingress to public internet
+    # if public, then open ingress to public internet
     for_each = var.compute_and_load_balancer_specs[keys(var.compute_and_load_balancer_specs)[count.index]].is_public ? [1] : []
     content { 
       network_entity_id = oci_core_internet_gateway.igw.id
@@ -100,7 +100,7 @@ resource "oci_core_security_list" "sl" {
   # inbound traffic
   ingress_security_rules {
     protocol = 6
-    source   = "0.0.0.0/0"
+    source   = var.compute_and_load_balancer_specs[keys(var.compute_and_load_balancer_specs)[count.index]].is_public ? "0.0.0.0/0" : var.vcn_cidr
 
     tcp_options {
       # ssh
@@ -110,7 +110,7 @@ resource "oci_core_security_list" "sl" {
   }
   ingress_security_rules {
     protocol = 6
-    source   = "0.0.0.0/0"
+    source   = var.compute_and_load_balancer_specs[keys(var.compute_and_load_balancer_specs)[count.index]].is_public ? "0.0.0.0/0" : var.vcn_cidr
 
     tcp_options {
       # http
@@ -120,7 +120,7 @@ resource "oci_core_security_list" "sl" {
   }
   ingress_security_rules {
     protocol = 6
-    source   = "0.0.0.0/0"
+    source   = var.compute_and_load_balancer_specs[keys(var.compute_and_load_balancer_specs)[count.index]].is_public ? "0.0.0.0/0" : var.vcn_cidr
 
     tcp_options {
       # https
@@ -130,7 +130,7 @@ resource "oci_core_security_list" "sl" {
   }
   ingress_security_rules {
     protocol = 6
-    source   = "0.0.0.0/0"
+    source   = var.compute_and_load_balancer_specs[keys(var.compute_and_load_balancer_specs)[count.index]].is_public ? "0.0.0.0/0" : var.vcn_cidr
 
     tcp_options {
       # information
@@ -140,12 +140,63 @@ resource "oci_core_security_list" "sl" {
   }
   ingress_security_rules {
     protocol = 6
-    source   = "0.0.0.0/0"
+    source   = var.compute_and_load_balancer_specs[keys(var.compute_and_load_balancer_specs)[count.index]].is_public ? "0.0.0.0/0" : var.vcn_cidr
 
     tcp_options {
       # mysql
       max = 3306
       min = 3306
+    }
+  }
+}
+# if deploy fss, sl for fss
+resource "oci_core_security_list" "sl_fss" {
+  count = var.deploy_fss ? length(var.compute_and_load_balancer_specs) : 0
+
+  compartment_id = var.network_compartment_ocid
+  vcn_id         = oci_core_vcn.vcn.id
+  display_name   = "${var.region_key}-${keys(var.compute_and_load_balancer_specs)[count.index]}-${var.security_list}-${var.file_storage_service}"
+
+  # outbound traffic
+  egress_security_rules {
+    destination      = var.vcn_cidr
+    protocol         = "all"
+  }
+  # inbound traffic
+  ingress_security_rules {
+    protocol = 6
+    source   = var.vcn_cidr
+
+    tcp_options {
+      max = 111
+      min = 111
+    }
+  }
+  ingress_security_rules {
+    protocol = 6
+    source   = var.vcn_cidr
+
+    tcp_options {
+      max = 2050
+      min = 2048
+    }
+  }
+  ingress_security_rules {
+    protocol = 17
+    source   = var.vcn_cidr
+
+    udp_options {
+      max = 111
+      min = 111
+    }
+  }
+  ingress_security_rules {
+    protocol = 17
+    source   = var.vcn_cidr
+
+    udp_options {
+      max = 2048
+      min = 2048
     }
   }
 }

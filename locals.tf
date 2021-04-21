@@ -24,7 +24,7 @@ locals {
       load_balancer = null
       }
   }
-
+  
   # helper
   compute_load_balanced_helper = [
       for i in keys(local.compute_specs) :
@@ -58,6 +58,13 @@ locals {
   # values: their specifications
   compute_and_load_balancer_specs = merge(local.compute_specs, local.load_balancer_specs)
 
+  # first element for latest image
+  image_ocid = data.oci_core_images.compute_images.images[0].id
+  bastion_image_ocid = data.oci_core_images.bastion_images.images[0].id
+
+  # deploy bastion?
+  deploy_bastion = var.deploy_compute && var.use_bastion ? true : false
+
   # common
   region_key = lower(data.oci_identity_regions.available_regions.regions.0.key)
   # network
@@ -76,12 +83,18 @@ locals {
   fd_names = data.oci_identity_fault_domains.compute_fds.fault_domains.*.name
   instance_configuration = "ic"
   instance_pool = "pool"
-    # first element for latest image
-  image_ocid = data.oci_core_images.compute_images.images[0].id
   # autoscale
   autoscaling_configuration = "autoscaler"
   # load balancer
   load_balancer = "lb"
   load_balancer_backend_set = "backset"
   load_balancer_listener = "listener"
+  # file storage
+  filesystem = "fs"
+  file_storage_service = "fss"
+  mount_target = "mt"
+  # custom image
+  custom_image = "image"
+  # bastion
+  bastion = "bastion"
 }
