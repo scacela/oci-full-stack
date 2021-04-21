@@ -1,4 +1,5 @@
 data "template_file" "configure_fss" {
+  count = var.deploy_fss ? 1 : 0
   template = <<YAML
   #cloud-config
   runcmd:

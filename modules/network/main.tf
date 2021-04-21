@@ -43,7 +43,7 @@ resource "oci_core_subnet" "sub" {
   vcn_id            = oci_core_vcn.vcn.id
   display_name      = "${var.region_key}-${keys(var.compute_and_load_balancer_specs)[count.index]}-${var.subnet}"
   dns_label         = "${var.region_key}${keys(var.compute_and_load_balancer_specs)[count.index]}${var.subnet}"
-  security_list_ids = [oci_core_security_list.sl[count.index].id, oci_core_security_list.sl_fss[count.index].id]
+  security_list_ids = compact([oci_core_security_list.sl[count.index].id, var.deploy_fss ? oci_core_security_list.sl_fss[count.index].id : ""])
   route_table_id    = oci_core_route_table.rt[count.index].id
 }
 # rt
