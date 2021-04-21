@@ -32,7 +32,7 @@ Hamburger Menu &gt Governance &gt Limits, Quotas and Usage
 
 ### Deployment via Resource Manager
 ##### Recommended for first time users of this project. The 'Configure Variables' page in Resource Manager helps users provide valid input.
-1. [Download this project](https://github.com/scacela/oci-full-stack/archive/refs/heads/lb_and_autoscale.zip) to your local machine.
+1. [Download this project](https://github.com/scacela/oci-full-stack/archive/refs/heads/main.zip) to your local machine.
 2. Navigate to [cloud.oracle.com](https://cloud.oracle.com/) on a web browser.
 3. Sign into OCI.
 4. Click the hamburger icon.
@@ -51,7 +51,7 @@ Hamburger Menu &gt Governance &gt Limits, Quotas and Usage
 ### Deployment via CLI Terraform
 
 
-1. [Download this project](https://github.com/scacela/oci-full-stack/archive/refs/heads/lb_and_autoscale.zip) to your local machine.
+1. [Download this project](https://github.com/scacela/oci-full-stack/archive/refs/heads/main.zip) to your local machine.
 2. [Set up CLI Terraform on your local machine.](https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/terraformgetstarted.htm) 
 3. Navigate to project folder on your local machine via CLI.
 <pre>
