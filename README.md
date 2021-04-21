@@ -1,13 +1,29 @@
 # oci-full-stack
-Deploy and manage a stack with web, app and database tiers, autoscaling, and load balancing in OCI.
+Deploy and manage a stack with web, app and database tiers in OCI. Optional autoscaling configuration, and load balancing for each tier, and optional shared file storage.
 
 ### Prerequisites
 - Access to an OCI Tenancy (account)
 - (CLI Terraform deployment only) Terraform set up on your local machine. You can access the steps [here](https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/terraformgetstarted.htm).
-- OCI Policies:
+- Sample OCI Policies:
 <pre>
-Allow group GROUPNAME to manage instance-family in compartment COMPARTMENTNAME
-Allow group GROUPNAME to manage virtual-network-family in compartment COMPARTMENTNAME
+
+# includes instances, instance-images
+<b>Allow group GROUPNAME to manage instance-family in compartment COMPARTMENTNAME</b>
+
+# includes instance-configurations, instance-pools
+<b>Allow group GROUPNAME to manage compute-management-family in compartment COMPARTMENTNAME</b>
+
+# includes autoscaling configuration
+<b>Allow group GROUPNAME to manage auto-scaling-configurations in compartment COMPARTMENTNAME</b>
+
+# includes vcns, subnets, route-tables, security-lists, private-ips, public-ips, internet-gateways, nat-gateways, service-gateways
+<b>Allow group GROUPNAME to manage virtual-network-family in compartment COMPARTMENTNAME</b>
+
+# includes load-balancers
+<b>Allow group GROUPNAME to manage load-balancers in compartment COMPARTMENTNAME</b>
+
+# includes file-systems, mount-targets, export-sets
+<b>Allow group GROUPNAME to manage file-family in compartment COMPARTMENTNAME</b>
 </pre>
 - Sufficient availability of resources. You can check resource availability:
 <pre>
@@ -16,7 +32,7 @@ Hamburger Menu &gt Governance &gt Limits, Quotas and Usage
 
 ### Deployment via Resource Manager
 ##### Recommended for first time users of this project. The 'Configure Variables' page in Resource Manager helps users provide valid input.
-1. [Download this project](https://github.com/scacela/oci-full-stack/archive/refs/heads/main.zip) to your local machine.
+1. [Download this project](https://github.com/scacela/oci-full-stack/archive/refs/heads/lb_and_autoscale.zip) to your local machine.
 2. Navigate to [cloud.oracle.com](https://cloud.oracle.com/) on a web browser.
 3. Sign into OCI.
 4. Click the hamburger icon.
@@ -35,7 +51,7 @@ Hamburger Menu &gt Governance &gt Limits, Quotas and Usage
 ### Deployment via CLI Terraform
 
 
-1. [Download this project](https://github.com/scacela/oci-full-stack/archive/refs/heads/main.zip) to your local machine.
+1. [Download this project](https://github.com/scacela/oci-full-stack/archive/refs/heads/lb_and_autoscale.zip) to your local machine.
 2. [Set up CLI Terraform on your local machine.](https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/terraformgetstarted.htm) 
 3. Navigate to project folder on your local machine via CLI.
 <pre>

@@ -1,6 +1,13 @@
+# availability domains
 data "oci_identity_availability_domains" "compute_ads" {
   compartment_id = var.compute_compartment_ocid
 }
+# fault domains
+data "oci_identity_fault_domains" "compute_fds" {
+    availability_domain = local.ad_name
+    compartment_id = var.compute_compartment_ocid
+}
+# regions
 data "oci_identity_regions" "available_regions" {
   filter {
     name = "name"
@@ -8,10 +15,21 @@ data "oci_identity_regions" "available_regions" {
     regex = false
   }
 }
-data "oci_core_services" "available_services" {
-  filter {
-    name   = "name"
-    values = ["All .* Services In Oracle Services Network"]
-    regex  = true
-  }
+# images (compute module)
+data "oci_core_images" "compute_images" {
+    compartment_id = var.compute_compartment_ocid
+    operating_system = "Oracle Linux"
+    operating_system_version = var.oracle_linux_os_version
+    shape = var.instance_configuration_shape
+    sort_by = "TIMECREATED"
+    sort_order = "DESC"
+}
+# images (bastion module)
+data "oci_core_images" "bastion_images" {
+    compartment_id = var.compute_compartment_ocid
+    operating_system = "Oracle Linux"
+    operating_system_version = var.bastion_oracle_linux_os_version
+    shape = var.bastion_shape
+    sort_by = "TIMECREATED"
+    sort_order = "DESC"
 }

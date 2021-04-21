@@ -1,7 +1,7 @@
 # reference for schema.yaml:
 # https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/terraformconfigresourcemanager_topic-schema.htm#schema
 title: Full Stack Variables
-description: Deploy and manage a stack with web, app and database tiers, autoscaling, and load balancing in OCI.
+description: Deploy and manage a stack with web, app and database tiers, autoscaling, and load balancer in OCI.
 schemaVersion: 1.0.0
 version: "20200302"
 locale: "en"
@@ -12,21 +12,68 @@ variableGroups:
   - ${region}
   - ${image}
 - title: "Network Layer"
-  variables: 
+  variables:
   - ${network_compartment_ocid}
   - ${vcn_cidr}
-  - ${subnet_lb_web_cidr}
-  - ${subnet_web_cidr}
-  - ${subnet_lb_app_cidr}
-  - ${subnet_app_cidr}
-  - ${subnet_db_cidr}
+  - ${subnet_cidr_lbweb}
+  - ${subnet_cidr_web}
+  - ${subnet_cidr_lbapp}
+  - ${subnet_cidr_app}
+  - ${subnet_cidr_db}
   - ${use_ngw}
   - ${use_sgw}
 - title: "Compute Layer"
-  variables: 
+  variables:
   - ${deploy_compute}
   - ${compute_compartment_ocid}
-  - ${compute_shape}
+  - ${ad_number}
+  - ${instance_configuration_shape}
+  - ${instance_configuration_ssh_public_key}
+  - ${instance_configuration_shape_config_memory_in_gbs}
+  - ${instance_configuration_shape_config_ocpus}
+  - ${instance_pool_node_count_initial}
+  - ${oracle_linux_os_version}
+  - ${use_custom_image}
+  - ${custom_image_ocid}
+  - ${use_bastion}
+  - ${subnet_cidr_bastion}
+  - ${bastion_oracle_linux_os_version}
+  - ${bastion_shape}
+- title: "Autoscaling Layer"
+  variables:
+  - ${deploy_autoscaling}
+  - ${autoscaling_compartment_ocid}
+  - ${autoscaling_policy_type} # only one value is supported in this stack: threshold
+  - ${autoscaling_node_count_initial} # redundant due to ${instance_pool_node_count_initial}
+  - ${autoscaling_node_count_max}
+  - ${autoscaling_node_count_min}
+  - ${scale_in_action_type} # only one value is supported in this stack: CHANGE_COUNT_BY
+  - ${scale_in_action_value}
+  - ${scale_in_metric_type} # only one value is supported in this stack: CPU_UTILIZATION
+  - ${scale_in_threshold_operator}
+  - ${scale_in_threshold_value}
+  - ${scale_out_action_type} # only one value is supported in this stack: CHANGE_COUNT_BY
+  - ${scale_out_action_value}
+  - ${scale_out_metric_type} # only one value is supported in this stack: CPU_UTILIZATION
+  - ${scale_out_threshold_operator}
+  - ${scale_out_threshold_value}
+- title: "Load Balancer Layer"
+  variables:
+  - ${deploy_load_balancer}
+  - ${load_balancer_compartment_ocid}
+  - ${load_balancer_shape}
+  - ${backend_set_health_checker_protocol}
+  - ${backend_set_policy}
+  - ${backend_port}
+  - ${listener_port}
+  - ${listener_protocol}
+  - ${load_balancer_health_check_url_path}
+- title: "File Storage Layer"
+  variables:
+- ${deploy_fss}
+- ${fss_compartment_ocid}
+- ${fss_export_path}
+- ${subnet_cidr_fss}
 
 variables:
   # invisible
@@ -55,35 +102,35 @@ variables:
     title: "VCN CIDR"
     default: "10.0.0.0/16"
     visible: true
-  subnet_lb_web_cidr:
+  subnet_cidr_lbweb:
     type: string
     required: true
     description: "CIDR range for Subnet containing the Load Balancer for web servers."
     title: "Subnet CIDR for Web Server LB"
     default: "10.0.0.0/24"
     visible: true
-  subnet_web_cidr:
+  subnet_cidr_web:
     type: string
     required: true
     description: "CIDR range for Subnet containing web servers."
     title: "Subnet CIDR for Web Servers"
     default: "10.0.1.0/24"
     visible: true
-  subnet_lb_app_cidr:
+  subnet_cidr_lbapp:
     type: string
     required: true
     description: "CIDR range for Subnet containing the Load Balancer for app servers."
     title: "Subnet CIDR for App Server LB"
     default: "10.0.2.0/24"
     visible: true
-  subnet_app_cidr:
+  subnet_cidr_app:
     type: string
     required: true
     description: "CIDR range for Subnet containing app servers."
     title: "Subnet CIDR for App Servers"
     default: "10.0.3.0/24"
     visible: true
-  subnet_db_cidr:
+  subnet_cidr_db:
     type: string
     required: true
     description: "CIDR range for Subnet containing database servers."
@@ -118,7 +165,17 @@ variables:
     description: "Compartment where deployment of compute layer takes place."
     title: "Compute Compartment ID"
     visible: ${deploy_compute}
-  compute_shape:
+  ad_number:
+    type: enum
+    enum:
+      - 1
+      - 2
+      - 3
+    required: true
+    description: "Number corresponding to an availability domain within the region, where compute nodes will be provisioned."
+    title: "Availability Domain Number"
+    visible: ${deploy_compute}
+  instance_configuration_shape:
     type: enum
     enum:
     - "VM.Standard2.1"
@@ -127,9 +184,384 @@ variables:
     - "VM.Standard2.8"
     - "VM.Standard2.16"
     - "VM.Standard2.24"
+    - "VM.Standard.E3.Flex"
+    - "VM.Standard.E4.Flex"
     required: true
-    description: "Shape of Compute Node"
+    description: "Shape of Compute Nodes"
     title: "Compute Shape"
     default: "VM.Standard2.1"
     visible: ${deploy_compute}
-
+  instance_configuration_ssh_public_key:
+    type: oci:core:ssh:publickey
+    required: true
+    description: "User-provided SSH Public Key that you can use to access your compute nodes."
+    title: "SSH Public Key"
+    visible: ${deploy_compute}
+  instance_configuration_shape_config_memory_in_gbs:
+    type: integer
+    required: true
+    description: "Amount of memory in GiB for each compute node."
+    title: "Customizable Memory (GiB)"
+    default: 16
+    maximum: 1024
+    minimum: 1
+    visible:
+      and:
+        - ${deploy_compute}
+        - and:
+          or:
+            - eq:
+              - ${instance_configuration_shape}
+              - "VM.Standard.E3.Flex"
+            - or:
+              - eq:
+                - ${instance_configuration_shape}
+                - "VM.Standard.E4.Flex"
+  instance_configuration_shape_config_ocpus:
+    type: integer
+    required: true
+    description: "Number of OCPUs for each compute node."
+    title: "Customizable number of OCPUs"
+    default: 1
+    maximum: 64
+    minimum: 1
+    visible:
+      and:
+        - ${deploy_compute}
+        - and:
+          or:
+            - eq:
+              - ${instance_configuration_shape}
+              - "VM.Standard.E3.Flex"
+            - or:
+              - eq:
+                - ${instance_configuration_shape}
+                - "VM.Standard.E4.Flex"
+  instance_pool_node_count_initial:
+    type: integer
+    required: true
+    description: "Number of compute nodes that should be in the instance pool for each tier by default."
+    title: "Instance Pool Equilibrium Node Count"
+    default: 1
+    minimum: 0
+    visible: ${deploy_compute}
+  oracle_linux_os_version:
+    type: enum
+    enum:
+      - "7.9"
+      - "7.8"
+      - "7.7"
+      - "7.6"
+    required: true
+    description: "Version of Oracle Linux to use for compute nodes."
+    title: "Oracle Linux OS Version"
+    default: "7.9"
+    visible: ${deploy_compute}
+  use_bastion:
+    type: boolean
+    required: true
+    description: "Check this box if you wish to deploy a bastion compute within a bastion subnet to help with accessibility."
+    title: "Deploy Bastion?"
+    default: true
+    visible: ${deploy_compute}
+  subnet_cidr_bastion:
+    type: string
+    required: true
+    description: "CIDR range for Subnet containing the bastion node."
+    title: "Subnet CIDR for Bastion Node"
+    default: "10.0.5.0/24"
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${use_bastion}
+  bastion_oracle_linux_os_version:
+    type: enum
+    enum:
+      - "7.9"
+      - "7.8"
+      - "7.7"
+      - "7.6"
+    required: true
+    description: "Version of Oracle Linux to use for the bastion compute node."
+    title: "Oracle Linux OS Version (Bastion)"
+    default: "7.9"
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${use_bastion}
+  bastion_shape:
+    type: enum
+    enum:
+    - "VM.Standard2.1"
+    - "VM.Standard2.2"
+    - "VM.Standard2.4"
+    - "VM.Standard2.8"
+    - "VM.Standard2.16"
+    - "VM.Standard2.24"
+    - "VM.Standard.E3.Flex"
+    - "VM.Standard.E4.Flex"
+    required: true
+    description: "Shape of the bastion compute node."
+    title: "Compute Shape (Bastion)"
+    default: "VM.Standard2.1"
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${use_bastion}
+  # autoscaling layer
+  deploy_autoscaling:
+    type: boolean
+    required: true
+    description: "Check this box if you wish to deploy the autoscaling layer of the stack."
+    title: "Deploy Autoscaling Layer?"
+    default: true
+    visible: ${deploy_compute}
+  autoscaling_compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    description: "Compartment where deployment of autoscaling layer takes place."
+    title: "Autoscaling Compartment ID"
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_autoscaling}
+  autoscaling_policy_type:
+    type: enum
+    enum:
+      - threshhold
+    required: true
+    description: "The compute nodes in a pool will scale based on some threshold that is met."
+    title: "Autoscaling Policy Type"
+    default: threshhold
+    visible: false
+      # and:
+      #   - ${deploy_compute}
+      #   - ${deploy_autoscaling}
+  autoscaling_node_count_initial:
+    visible: false
+  autoscaling_node_count_max:
+    type: integer
+    required: true
+    description: "Maximum number of compute nodes that should be in the instance pool for each tier by default."
+    title: "Autoscaling Node Count Max"
+    default: 4
+    minimum: 0
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_autoscaling}
+  autoscaling_node_count_min:
+    type: integer
+    required: true
+    description: "Minimum number of compute nodes that should be in the instance pool for each tier by default."
+    title: "Autoscaling Node Count Min"
+    default: 1
+    minimum: 1
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_autoscaling}
+  scale_in_action_type:
+    type: enum
+    enum:
+      - CHANGE_COUNT_BY
+    required: true
+    description: "The compute node count will change when a scale in rule is in effect."
+    title: "Scale-In Action Type"
+    default: threshhold
+    visible: false
+      # and:
+      #   - ${deploy_compute}
+      #   - ${deploy_autoscaling}
+  scale_in_action_value:
+    type: integer
+    required: true
+    description: "Select a constant value by which the compute node count in an instance pool will change when a scale-in rule is in effect."
+    title: "Scale-In Action Value"
+    default: -1
+    maximum: -1
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_autoscaling}
+  scale_in_metric_type:
+    type: enum
+    enum:
+      - CPU_UTILIZATION
+    required: true
+    description: "The compute node count will change when a scale in rule is in effect."
+    title: "Scale-In Metric Type"
+    default: CPU_UTILIZATION
+    visible: false
+      # and:
+      #   - ${deploy_compute}
+      #   - ${deploy_autoscaling}
+  scale_in_threshold_operator:
+    type: enum
+    enum:
+      - LT
+      - LTE
+    required: true
+    description: "Choose from: Less-Than, Less-Than-or-Equal-to"
+    title: "Scale-In Threshold Operator"
+    default: LT
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_autoscaling}
+  scale_in_threshold_value:
+    type: integer
+    required: true
+    description: "Select a threshhold value for percentage of CPU Utilization that will trigger a scale-in action."
+    title: "Scale-In Action Value"
+    default: 10
+    maximum: 100
+    minimum: 0
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_autoscaling}
+  scale_out_action_type:
+    visible: false
+  scale_out_action_value:
+    type: integer
+    required: true
+    description: "Select a constant value by which the compute node count in an instance pool will change when a scale-out rule is in effect."
+    title: "Scale-Out Action Value"
+    default: 1
+    minimum: 1
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_autoscaling}
+  scale_out_metric_type:
+    visible: false
+  scale_out_threshold_operator:
+    type: enum
+    enum:
+      - GT
+      - GTE
+    required: true
+    description: "Choose from: Greater-Than, Greater-Than-or-Equal-to"
+    title: "Scale-Out Threshold Operator"
+    default: GT
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_autoscaling}
+  scale_out_threshold_value:
+    type: integer
+    required: true
+    description: "Select a threshhold value for percentage of CPU Utilization that will trigger a scale-out action."
+    title: "Scale-Out Action Value"
+    default: 50
+    maximum: 100
+    minimum: 0
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_autoscaling}
+  # load balancing layer
+  deploy_load_balancer:
+    type: boolean
+    required: true
+    description: "Check this box if you wish to deploy the load-balancer layer of the stack."
+    title: "Deploy Load-Balancer Layer?"
+    default: true
+    visible: true
+  load_balancer_compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    description: "Compartment where deployment of load-balancer layer takes place."
+    title: "Load-Balancer Compartment ID"
+    visible: ${deploy_load_balancer}
+  load_balancer_shape:
+    type: enum
+    enum:
+      - 10Mbps
+      - 100Mbps
+      - 400Mbps
+      - 8000Mbps
+    required: true
+    description: "Choose a load-balancer bandwidth for ingress plus egress traffic."
+    title: "Load Balancer Shape"
+    default: 10Mbps
+    visible: ${deploy_load_balancer}
+  backend_set_health_checker_protocol:
+    type: enum
+    enum:
+      - HTTP
+      - TCP
+    required: true
+    description: "Choose a protocol for the load-balancer to use to check the health of the compute nodes in the associated instance pool."
+    title: "Backend Set Health Checker Protocol"
+    default: TCP
+    visible: ${deploy_load_balancer}
+  backend_set_policy:
+    type: enum
+    enum:
+      - LEAST_CONNECTIONS
+      - IP_HASH # to do: confirm that this is how it is called in Terraform
+      - ROUND_ROBIN
+    required: true
+    description: "Choose an algorithm that load-balancer will use to distribute incoming traffic to the compute nodes in the associated instance pool."
+    title: "Backend Set Policy"
+    default: ROUND_ROBIN
+    visible: ${deploy_load_balancer}
+  backend_port:
+    type: integer
+    minimum: 0
+    description: "Choose a port value to use for communication between the load balancer and each compute node in its associated instance pool."
+    title: "Backend Port"
+    default: 80
+    visible: ${deploy_load_balancer}
+  listener_port:
+    type: integer
+    minimum: 0
+    description: "Choose a port value to use as a communication port for the listener."
+    title: "Listener Port"
+    default: 80
+    visible: ${deploy_load_balancer}
+  listener_protocol:
+    type: enum
+    enum:
+      - HTTP
+      - TCP
+    required: true
+    description: "Choose a protocol for the listener to use to accept connection requests."
+    title: "Listener Protocol"
+    default: TCP
+    visible: ${deploy_load_balancer}
+  load_balancer_health_check_url_path:
+    type: string
+    description: "Specify the path against which to run the health check on the compute nodes in the associated instance pool."
+    title: "Load Balancer Health Check URL Path"
+    default: /
+    visible: ${deploy_load_balancer}
+# file_storage_layer
+  deploy_fss:
+    type: boolean
+    required: true
+    description: "Check this box if you wish to deploy the File Storage Service layer of the stack."
+    title: "Deploy FSS Layer?"
+    default: true
+    visible: true
+  fss_compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    description: "Compartment where deployment of File Storage Service layer takes place."
+    title: "FSS Compartment ID"
+    visible: ${deploy_fss}
+  fss_export_path:
+    type: string
+    description: "Specify the File Storage Service export path in OCI to mount to."
+    title: "FSS Export Path"
+    default: /FSS
+    visible: ${deploy_fss}
+  subnet_cidr_fss:
+    type: string
+    required: true
+    description: "CIDR range for Subnet containing File Storage Service resources."
+    title: "Subnet CIDR for FSS"
+    default: "10.0.6.0/24"
+    visible: ${deploy_fss}

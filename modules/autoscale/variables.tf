@@ -1,0 +1,22 @@
+# configuration
+variable "autoscaling_compartment_ocid" {}
+variable "compute_specs" {}
+variable "autoscaling_policy_type" {}
+variable "autoscaling_node_count_initial" {}
+variable "autoscaling_node_count_max" {}
+variable "autoscaling_node_count_min" {}
+variable "scale_in_action_type" {}
+variable "scale_in_action_value" {}
+variable "scale_in_metric_type" {}
+variable "scale_in_threshold_operator" {}
+variable "scale_in_threshold_value" {}
+variable "scale_out_action_type" {}
+variable "scale_out_action_value" {}
+variable "scale_out_metric_type" {}
+variable "scale_out_threshold_operator" {}
+variable "scale_out_threshold_value" {}
+variable "instance_pool_ocids" {}
+# naming convention
+variable "region_key" {}
+variable "autoscaling_configuration" {}
+variable "compute_instance" {}
