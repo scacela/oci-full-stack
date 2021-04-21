@@ -38,7 +38,7 @@ Provisions a subnet for each compute tier and for each load balancer tier within
 <details>
 <summary>4. An optional Autoscaling Configuration layer</summary>
 <p></p>
-For autoscaling the number of Compute Instances in any given compute tier.
+For enabling metric-based autoscaling of the number of Compute Instances in any given compute tier.
 <p></p>
 Provisions an Autoscaling Configuration for each compute tier that associates with its respective instance pool. The threshold-based metric that triggers the autoscaling action is CPU Utilization.
 </details>
