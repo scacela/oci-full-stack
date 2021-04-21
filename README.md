@@ -1,6 +1,16 @@
 # oci-full-stack
 Deploy and manage a stack with web, app and database tiers in OCI. Optional autoscaling configuration, and load balancing for each tier, and optional shared file storage.
 
+### What does the stack provision?
+1. Instance pools for web (public ip), app (private ip), db (private ip) tiers, each in its own subnet of corresponding accessibility
+	a. Each instance pool can generate instances using an instance configuration.
+		i. The web and app tier instance pools are optionally bound to load balancers (web load balancer is public, app load balancer is private), each in its own subnet of corresponding accessibility
+	b. Instances that are generated as part of the instance pool optionally connect to file storage service, with file storage service resources in its own private subnet
+2. An optional autoscaling configuration that is bound to each instance pool, with CPU Utilization threshold being the autoscaling metric
+3. An optional bastion node in its own public subnet, for accessibility
+4. Optional NAT Gateway and Service Gateway accessibility for private subnets
+5. A new SSH key pair for accessing all compute instances in the stack
+
 ### Prerequisites
 - Access to an OCI Tenancy (account)
 - (CLI Terraform deployment only) Terraform set up on your local machine. You can access the steps [here](https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/terraformgetstarted.htm).
