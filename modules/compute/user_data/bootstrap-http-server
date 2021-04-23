@@ -1,0 +1,20 @@
+#!bin/bash
+
+# set up log folder
+mkdir -p /home/opc/bootstrap-logs
+
+echo 'install HTTP Server' >> /home/opc/bootstrap-logs/http-server.log
+
+sudo yum -y install httpd 2>&1 >> /home/opc/bootstrap-logs/http-server.log
+
+echo 'populate an index file' >> /home/opc/bootstrap-logs/http-server.log
+
+sudo /bin/su -c "echo 'This is an app running on $(hostname).' >> /var/www/html/index.html" 2>&1 >> /home/opc/bootstrap-logs/http-server.log
+
+echo 'stop firewalld service' >> /home/opc/bootstrap-logs/http-server/bootstrap.log
+
+sudo service firewalld stop 2>&1 >> /home/opc/bootstrap-logs/http-server.log
+
+echo 'start httpd service' >> /home/opc/bootstrap-logs/http-server/bootstrap.log
+
+sudo service httpd start 2>&1 >> /home/opc/bootstrap-logs/http-server.log

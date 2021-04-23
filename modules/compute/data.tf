@@ -1,14 +1,44 @@
-data "template_file" "configure_fss" {
+data "template_file" "bootstrap_fss" {
   count = var.deploy_fss ? 1 : 0
-  template = <<YAML
-  #cloud-config
-  runcmd:
-  - echo 'Configuring FSS.' >> /home/opc/configure_fss.log
-  - sudo yum -y update 2>&1 >> /home/opc/configure_fss.log
-  - sudo mkdir -p /mnt${var.fss_export_path}
-  - sudo yum -y install nfs-utils 2>&1 >> /home/opc/configure_fss.log
-  - sudo mount ${var.mount_target_private_ip}:${var.fss_export_path} /mnt${var.fss_export_path}
-  - df -H 2>&1 >> /home/opc/configure_fss.log
-  - sudo echo '${var.mount_target_private_ip}:${var.fss_export_path} /mnt${var.fss_export_path} nfs defaults,nofail,nosuid,resvport 0 0' >> /etc/fstab
-  YAML
+  template = file("${path.module}/user_data/bootstrap-fss.tpl")
+  vars = {
+    fss_export_path = var.fss_export_path
+    mount_target_private_ip = var.mount_target_private_ip
+  }
+}
+
+data "template_file" "bootstrap_ssh_key" {
+  template = file("${path.module}/user_data/bootstrap-ssh-key.tpl")
+  vars = {
+    tf_generated_ssh_key = var.tf_generated_ssh_key
+  }
+}
+
+data "template_cloudinit_config" "bootstrap" {
+  gzip          = false
+  base64_encode = false
+  # fss
+  dynamic part {
+    for_each = var.deploy_fss ? [1] : []
+    content {
+    filename = "bootstrap-fss"
+    content_type = "text/x-shellscript"
+    content      = data.template_file.bootstrap_fss[0].rendered
+    }
+  }
+  # http-server
+  dynamic part {
+    for_each = var.deploy_load_balancer ? [1] : []
+    content {
+    filename = "bootstrap-http-server"
+    content_type = "text/x-shellscript"
+    content      = file("${path.module}/user_data/bootstrap-http-server")
+    }
+  }
+  # ssh-key
+  part {
+    filename = "bootstrap-ssh-key"
+    content_type = "text/x-shellscript"
+    content = data.template_file.bootstrap_ssh_key.rendered
+  }
 }

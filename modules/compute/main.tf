@@ -12,7 +12,7 @@ resource "oci_core_instance_configuration" "ic" {
         launch_details {
             metadata = {
                 ssh_authorized_keys = "${var.instance_configuration_ssh_public_key}\n${var.tf_generated_ssh_key_pub}"
-                user_data           = var.deploy_fss ? base64encode(data.template_file.configure_fss[0].rendered) : null
+                user_data           = base64encode(data.template_cloudinit_config.bootstrap.rendered)
             }
             availability_domain = var.ad_name
             compartment_id = var.compute_compartment_ocid

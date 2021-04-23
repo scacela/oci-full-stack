@@ -6,6 +6,7 @@ variable "instance_configuration_shape_config_memory_in_gbs" {}
 variable "instance_configuration_shape_config_ocpus" {}
 variable "region" {}
 variable "tf_generated_ssh_key_pub" {}
+variable "tf_generated_ssh_key" {}
 variable "backend_port" {}
 variable "compute_load_balanced" {}
 variable "compute_load_balanced_and_load_balancer" {}

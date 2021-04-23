@@ -15,7 +15,7 @@ variable "deploy_compute" { default = true }
 variable "compute_compartment_ocid" {}
 variable "ad_number" { default = 1 }
 variable "instance_configuration_shape" { default = "VM.Standard2.1" }
-variable "instance_configuration_ssh_public_key" {}
+variable "instance_configuration_ssh_public_key" { default = "" }
 variable "instance_configuration_shape_config_memory_in_gbs" { default = 32 }
 variable "instance_configuration_shape_config_ocpus" { default = 8 }
 variable "instance_pool_node_count_initial" { default = 1 }
@@ -27,7 +27,7 @@ variable "bastion_oracle_linux_os_version" { default = "7.9" }
 variable "bastion_shape" { default = "VM.Standard2.1" }
 # autoscale
 variable "deploy_autoscaling" { default = true }
-variable "autoscaling_compartment_ocid" {}
+variable "autoscaling_compartment_ocid" { default = "" }
 variable "autoscaling_policy_type" { default = "threshold" }
 variable "autoscaling_node_count_initial" { default = 2 }
 variable "autoscaling_node_count_max" { default = 4 }
@@ -44,7 +44,7 @@ variable "scale_out_threshold_operator" { default = "GT" }
 variable "scale_out_threshold_value" { default = 50  }
 # load balancer
 variable "deploy_load_balancer" { default = true }
-variable "load_balancer_compartment_ocid" {}
+variable "load_balancer_compartment_ocid" { default = "" }
 variable "load_balancer_shape" { default = "10Mbps" }
 variable "backend_set_health_checker_protocol" { default = "TCP" }
 variable "backend_set_policy" { default = "ROUND_ROBIN" }
@@ -54,6 +54,6 @@ variable "listener_protocol" { default = "TCP" }
 variable "load_balancer_health_check_url_path" { default = "/" }
 # file storage
 variable "deploy_fss" { default = true }
-variable "fss_compartment_ocid" {}
+variable "fss_compartment_ocid" { default = "" }
 variable "fss_export_path" { default = "/FSS" }
 variable "subnet_cidr_fss" { default = "10.0.6.0/24" }

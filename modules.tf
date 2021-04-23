@@ -31,6 +31,7 @@ module "compute" {
   instance_configuration_shape_config_ocpus = var.instance_configuration_shape_config_ocpus
   region = var.region
   tf_generated_ssh_key_pub = tls_private_key.ssh.public_key_openssh
+  tf_generated_ssh_key = tls_private_key.ssh.private_key_pem
   backend_port = var.backend_port
   compute_load_balanced = local.compute_load_balanced
   compute_load_balanced_and_load_balancer = local.compute_load_balanced_and_load_balancer
