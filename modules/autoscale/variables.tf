@@ -1,6 +1,6 @@
 # configuration
 variable "autoscaling_compartment_ocid" {}
-variable "compute_specs" {}
+variable "compute_collective_specs" {}
 variable "autoscaling_policy_type" {}
 variable "autoscaling_node_count_initial" {}
 variable "autoscaling_node_count_max" {}
@@ -15,6 +15,8 @@ variable "scale_out_action_value" {}
 variable "scale_out_metric_type" {}
 variable "scale_out_threshold_operator" {}
 variable "scale_out_threshold_value" {}
+variable "computes_pool_specs" {}
+variable "computes_solo_specs" {}
 variable "instance_pool_ocids" {}
 # naming convention
 variable "region_key" {}

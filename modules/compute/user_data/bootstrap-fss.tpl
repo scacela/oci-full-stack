@@ -2,6 +2,12 @@
 
 # set up log folder
 mkdir -p /home/opc/bootstrap-logs
+# set up log file
+sudo touch /home/opc/bootstrap-logs/fss.log
+# set ownership of log folder
+chown -R opc:opc /home/opc/bootstrap-logs
+# set mode of log folder
+chmod -R 755 /home/opc/bootstrap-logs
 
 echo 'update yum' >> /home/opc/bootstrap-logs/fss.log
 sudo yum -y update 2>&1 >> /home/opc/bootstrap-logs/fss.log

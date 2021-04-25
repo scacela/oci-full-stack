@@ -1,5 +1,5 @@
 # oci-full-stack
-Deploy and manage a stack with web, app and database tiers in OCI. Optional autoscaling configuration, and load balancing for each tier, and optional shared file storage.
+Deploy and manage a stack with web, app and database tiers in OCI. Optional compute, autoscaling, load balancing, and shared file storage layers.
 
 ### What does the stack provision?
 <details>

@@ -9,7 +9,7 @@ resource "oci_load_balancer_load_balancer" "lb" {
   display_name = "${var.region_key}-${keys(var.load_balancer_specs)[count.index]}-${var.load_balancer}"
   compartment_id = var.load_balancer_compartment_ocid
   shape          = var.load_balancer_shape
-  subnet_ids = [var.subnet_displaynames_and_ocids["${var.region_key}-${keys(var.load_balancer_specs)[count.index]}-${var.subnet}"]]
+  subnet_ids = [var.subnet_display_names_and_ocids["${var.region_key}-${keys(var.load_balancer_specs)[count.index]}-${var.subnet}"]]
 }
 # lb_backend_set
 resource "oci_load_balancer_backend_set" "lb_backend_set" {

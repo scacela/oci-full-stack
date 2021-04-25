@@ -1,16 +1,15 @@
 # reference for schema.yaml:
 # https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/terraformconfigresourcemanager_topic-schema.htm#schema
 title: Full Stack Variables
-description: Deploy and manage a stack with web, app and database tiers, autoscaling, and load balancer in OCI.
+description: Deploy and manage a stack with web, app and database tiers in OCI. Optional compute, autoscaling, load balancing, and shared file storage layers.
 schemaVersion: 1.0.0
 version: "20200302"
 locale: "en"
 
 variableGroups:
 - title: "Invisible Variables"
-  variables: 
+  variables:
   - ${region}
-  - ${image}
 - title: "Network Layer"
   variables:
   - ${network_compartment_ocid}
@@ -27,18 +26,23 @@ variableGroups:
   - ${deploy_compute}
   - ${compute_compartment_ocid}
   - ${ad_number}
-  - ${instance_configuration_shape}
-  - ${instance_configuration_ssh_public_key}
-  - ${instance_configuration_shape_config_memory_in_gbs}
-  - ${instance_configuration_shape_config_ocpus}
+  - ${compute_shape}
+  - ${ssh_public_key}
+  - ${compute_shape_config_memory_in_gbs}
+  - ${compute_shape_config_ocpus}
   - ${instance_pool_node_count_initial}
-  - ${oracle_linux_os_version}
-  - ${use_custom_image}
-  - ${custom_image_ocid}
-  - ${use_bastion}
+  - ${compute_oracle_linux_os_version}
+  - ${deploy_bastion}
   - ${subnet_cidr_bastion}
   - ${bastion_oracle_linux_os_version}
   - ${bastion_shape}
+  - ${bastion_shape_config_memory_in_gbs}
+  - ${bastion_shape_config_ocpus}
+  - ${enable_is_bootstrapped_http_server}
+  - ${http_app_tar_file_url}
+  - ${enable_is_bootstrapped_ssh_key}
+  - ${enable_is_bootstrapped_vnc_server}
+  - ${vncpasswd}
 - title: "Autoscaling Layer"
   variables:
   - ${deploy_autoscaling}
@@ -49,12 +53,12 @@ variableGroups:
   - ${autoscaling_node_count_min}
   - ${scale_in_action_type} # only one value is supported in this stack: CHANGE_COUNT_BY
   - ${scale_in_action_value}
-  - ${scale_in_metric_type} # only one value is supported in this stack: CPU_UTILIZATION
+  - ${scale_in_metric_type}
   - ${scale_in_threshold_operator}
   - ${scale_in_threshold_value}
   - ${scale_out_action_type} # only one value is supported in this stack: CHANGE_COUNT_BY
   - ${scale_out_action_value}
-  - ${scale_out_metric_type} # only one value is supported in this stack: CPU_UTILIZATION
+  - ${scale_out_metric_type}
   - ${scale_out_threshold_operator}
   - ${scale_out_threshold_value}
 - title: "Load Balancer Layer"
@@ -70,10 +74,11 @@ variableGroups:
   - ${load_balancer_health_check_url_path}
 - title: "File Storage Layer"
   variables:
-- ${deploy_fss}
-- ${fss_compartment_ocid}
-- ${fss_export_path}
-- ${subnet_cidr_fss}
+  - ${deploy_fss}
+  - ${fss_compartment_ocid}
+  - ${fss_export_path}
+  - ${subnet_cidr_fss}
+  - ${enable_is_bootstrapped_fss}
 
 variables:
   # invisible
@@ -82,12 +87,6 @@ variables:
     required: true
     description: "Region Identifier where deployment takes place (e.g. us-phoenix-1)."
     title: "Region Identifier"
-    visible: false
-  image:
-    type: string
-    required: true
-    description: "Image OCID to assign an OS profile to compute instances."
-    title: "Image"
     visible: false
   # network layer
   network_compartment_ocid:
@@ -167,16 +166,17 @@ variables:
     visible: ${deploy_compute}
   ad_number:
     type: enum
+    required: true
     enum:
       - 1
       - 2
       - 3
-    required: true
     description: "Number corresponding to an availability domain within the region, where compute nodes will be provisioned."
     title: "Availability Domain Number"
     visible: ${deploy_compute}
-  instance_configuration_shape:
+  compute_shape:
     type: enum
+    required: true
     enum:
     - "VM.Standard2.1"
     - "VM.Standard2.2"
@@ -186,18 +186,17 @@ variables:
     - "VM.Standard2.24"
     - "VM.Standard.E3.Flex"
     - "VM.Standard.E4.Flex"
-    required: true
     description: "Shape of Compute Nodes"
     title: "Compute Shape"
     default: "VM.Standard2.1"
     visible: ${deploy_compute}
-  instance_configuration_ssh_public_key:
+  ssh_public_key:
     type: oci:core:ssh:publickey
     required: true
     description: "User-provided SSH Public Key that you can use to access your compute nodes."
     title: "SSH Public Key"
     visible: ${deploy_compute}
-  instance_configuration_shape_config_memory_in_gbs:
+  compute_shape_config_memory_in_gbs:
     type: integer
     required: true
     description: "Amount of memory in GiB for each compute node."
@@ -211,13 +210,13 @@ variables:
         - and:
           or:
             - eq:
-              - ${instance_configuration_shape}
+              - ${compute_shape}
               - "VM.Standard.E3.Flex"
             - or:
               - eq:
-                - ${instance_configuration_shape}
+                - ${compute_shape}
                 - "VM.Standard.E4.Flex"
-  instance_configuration_shape_config_ocpus:
+  compute_shape_config_ocpus:
     type: integer
     required: true
     description: "Number of OCPUs for each compute node."
@@ -231,11 +230,11 @@ variables:
         - and:
           or:
             - eq:
-              - ${instance_configuration_shape}
+              - ${compute_shape}
               - "VM.Standard.E3.Flex"
             - or:
               - eq:
-                - ${instance_configuration_shape}
+                - ${compute_shape}
                 - "VM.Standard.E4.Flex"
   instance_pool_node_count_initial:
     type: integer
@@ -245,19 +244,19 @@ variables:
     default: 1
     minimum: 0
     visible: ${deploy_compute}
-  oracle_linux_os_version:
+  compute_oracle_linux_os_version:
     type: enum
+    required: true
     enum:
       - "7.9"
       - "7.8"
       - "7.7"
       - "7.6"
-    required: true
     description: "Version of Oracle Linux to use for compute nodes."
     title: "Oracle Linux OS Version"
     default: "7.9"
     visible: ${deploy_compute}
-  use_bastion:
+  deploy_bastion:
     type: boolean
     required: true
     description: "Check this box if you wish to deploy a bastion compute within a bastion subnet to help with accessibility."
@@ -273,24 +272,25 @@ variables:
     visible:
       and:
         - ${deploy_compute}
-        - ${use_bastion}
+        - ${deploy_bastion}
   bastion_oracle_linux_os_version:
     type: enum
+    required: true
     enum:
       - "7.9"
       - "7.8"
       - "7.7"
       - "7.6"
-    required: true
     description: "Version of Oracle Linux to use for the bastion compute node."
     title: "Oracle Linux OS Version (Bastion)"
     default: "7.9"
     visible:
       and:
         - ${deploy_compute}
-        - ${use_bastion}
+        - ${deploy_bastion}
   bastion_shape:
     type: enum
+    required: true
     enum:
     - "VM.Standard2.1"
     - "VM.Standard2.2"
@@ -300,14 +300,96 @@ variables:
     - "VM.Standard2.24"
     - "VM.Standard.E3.Flex"
     - "VM.Standard.E4.Flex"
-    required: true
     description: "Shape of the bastion compute node."
     title: "Compute Shape (Bastion)"
     default: "VM.Standard2.1"
     visible:
       and:
         - ${deploy_compute}
-        - ${use_bastion}
+        - ${deploy_bastion}
+  bastion_shape_config_memory_in_gbs:
+    type: integer
+    required: true
+    description: "Amount of memory in GiB for each bastion compute node."
+    title: "Customizable Memory (GiB) for Bastion"
+    default: 16
+    maximum: 1024
+    minimum: 1
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_bastion}
+        - and:
+          or:
+            - eq:
+              - ${bastion_shape}
+              - "VM.Standard.E3.Flex"
+            - or:
+              - eq:
+                - ${bastion_shape}
+                - "VM.Standard.E4.Flex"
+  bastion_shape_config_ocpus:
+    type: integer
+    required: true
+    description: "Number of OCPUs for each bastion compute node."
+    title: "Customizable number of OCPUs for Bastion"
+    default: 1
+    maximum: 64
+    minimum: 1
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_bastion}
+        - and:
+          or:
+            - eq:
+              - ${bastion_shape}
+              - "VM.Standard.E3.Flex"
+            - or:
+              - eq:
+                - ${bastion_shape}
+                - "VM.Standard.E4.Flex"
+  enable_is_bootstrapped_http_server:
+    type: boolean
+    required: true
+    description: "Check this box if you wish to enable set up for HTTP Server on your compute nodes. Navigate to the public ip address of the compute node via a web browser to see that an app is running on the compute node."
+    title: "Enable HTTP-Server Bootstrapping?"
+    default: true
+    visible: ${deploy_compute}
+  http_app_tar_file_url:
+    type: string
+    required: false
+    description: "Enter a URL to a .tar file containing a web application that will be located in /var/www/html."
+    title: URL to .tar file for HTTP Application
+    default: https://objectstorage.us-ashburn-1.oraclecloud.com/p/2YV4mHD0QhOeqRPjN_SGO3AmBPDmm_g-SnGUckh4HnM3nYwDsHICeG2_r8wqO9Sj/n/hpc_limited_availability/b/large_files/o/files.tar
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${enable_is_bootstrapped_http_server}
+  enable_is_bootstrapped_ssh_key:
+    type: boolean
+    required: true
+    description: "Check this box if you wish to enable set up for SSH Key on your compute nodes. The generated SSH key will be placed at ~/.ssh/id_rsa on the compute nodes."
+    title: "Enable FSS Bootstrapping?"
+    default: true
+    visible: ${deploy_compute}
+  enable_is_bootstrapped_vnc_server:
+    type: boolean
+    required: true
+    description: "Check this box if you wish to enable set up for SSH Key on your compute nodes. The compute nodes will be VNC-accessible."
+    title: "Enable VNC-Server Bootstrapping?"
+    default: true
+    visible: ${deploy_compute}
+  vncpasswd:
+    type: string
+    required: true
+    description: "Specify the password to use for VNC Server."
+    title: "VNC Server Password"
+    default: fullstack1
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${enable_is_bootstrapped_vnc_server}
   # autoscaling layer
   deploy_autoscaling:
     type: boolean
@@ -327,9 +409,9 @@ variables:
         - ${deploy_autoscaling}
   autoscaling_policy_type:
     type: enum
+    required: true
     enum:
       - threshhold
-    required: true
     description: "The compute nodes in a pool will scale based on some threshold that is met."
     title: "Autoscaling Policy Type"
     default: threshhold
@@ -363,10 +445,10 @@ variables:
         - ${deploy_autoscaling}
   scale_in_action_type:
     type: enum
+    required: true
     enum:
       - CHANGE_COUNT_BY
-    required: true
-    description: "The compute node count will change when a scale in rule is in effect."
+    description: "The compute node count will change when a scale-in rule is in effect."
     title: "Scale-In Action Type"
     default: threshhold
     visible: false
@@ -386,22 +468,23 @@ variables:
         - ${deploy_autoscaling}
   scale_in_metric_type:
     type: enum
+    required: true
     enum:
       - CPU_UTILIZATION
-    required: true
-    description: "The compute node count will change when a scale in rule is in effect."
+      - MEMORY_UTILIZATION
+    description: "The compute node count will change when a scale-in rule is in effect, based on this metric."
     title: "Scale-In Metric Type"
     default: CPU_UTILIZATION
-    visible: false
-      # and:
-      #   - ${deploy_compute}
-      #   - ${deploy_autoscaling}
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_autoscaling}
   scale_in_threshold_operator:
     type: enum
+    required: true
     enum:
       - LT
       - LTE
-    required: true
     description: "Choose from: Less-Than, Less-Than-or-Equal-to"
     title: "Scale-In Threshold Operator"
     default: LT
@@ -412,10 +495,9 @@ variables:
   scale_in_threshold_value:
     type: integer
     required: true
-    description: "Select a threshhold value for percentage of CPU Utilization that will trigger a scale-in action."
+    description: "Select a threshhold value that will trigger a scale-in action. For CPU_UTILIZATION, this value will be a percentage."
     title: "Scale-In Action Value"
     default: 10
-    maximum: 100
     minimum: 0
     visible:
       and:
@@ -435,13 +517,24 @@ variables:
         - ${deploy_compute}
         - ${deploy_autoscaling}
   scale_out_metric_type:
-    visible: false
+    type: enum
+    required: true
+    enum:
+      - CPU_UTILIZATION
+      - MEMORY_UTILIZATION
+    description: "The compute node count will change when a scale-out rule is in effect, based on this metric."
+    title: "Scale-Out Metric Type"
+    default: CPU_UTILIZATION
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_autoscaling}
   scale_out_threshold_operator:
     type: enum
+    required: true
     enum:
       - GT
       - GTE
-    required: true
     description: "Choose from: Greater-Than, Greater-Than-or-Equal-to"
     title: "Scale-Out Threshold Operator"
     default: GT
@@ -452,10 +545,9 @@ variables:
   scale_out_threshold_value:
     type: integer
     required: true
-    description: "Select a threshhold value for percentage of CPU Utilization that will trigger a scale-out action."
+    description: "Select a threshhold value that will trigger a scale-out action. For CPU_UTILIZATION, this value will be a percentage."
     title: "Scale-Out Action Value"
     default: 50
-    maximum: 100
     minimum: 0
     visible:
       and:
@@ -477,39 +569,40 @@ variables:
     visible: ${deploy_load_balancer}
   load_balancer_shape:
     type: enum
+    required: true
     enum:
       - 10Mbps
       - 100Mbps
       - 400Mbps
       - 8000Mbps
-    required: true
     description: "Choose a load-balancer bandwidth for ingress plus egress traffic."
     title: "Load Balancer Shape"
     default: 10Mbps
     visible: ${deploy_load_balancer}
   backend_set_health_checker_protocol:
     type: enum
+    required: true
     enum:
       - HTTP
       - TCP
-    required: true
     description: "Choose a protocol for the load-balancer to use to check the health of the compute nodes in the associated instance pool."
     title: "Backend Set Health Checker Protocol"
     default: TCP
     visible: ${deploy_load_balancer}
   backend_set_policy:
     type: enum
+    required: true
     enum:
       - LEAST_CONNECTIONS
       - IP_HASH # to do: confirm that this is how it is called in Terraform
       - ROUND_ROBIN
-    required: true
     description: "Choose an algorithm that load-balancer will use to distribute incoming traffic to the compute nodes in the associated instance pool."
     title: "Backend Set Policy"
     default: ROUND_ROBIN
     visible: ${deploy_load_balancer}
   backend_port:
     type: integer
+    required: true
     minimum: 0
     description: "Choose a port value to use for communication between the load balancer and each compute node in its associated instance pool."
     title: "Backend Port"
@@ -517,6 +610,7 @@ variables:
     visible: ${deploy_load_balancer}
   listener_port:
     type: integer
+    required: true
     minimum: 0
     description: "Choose a port value to use as a communication port for the listener."
     title: "Listener Port"
@@ -524,16 +618,17 @@ variables:
     visible: ${deploy_load_balancer}
   listener_protocol:
     type: enum
+    required: true
     enum:
       - HTTP
       - TCP
-    required: true
     description: "Choose a protocol for the listener to use to accept connection requests."
     title: "Listener Protocol"
     default: TCP
     visible: ${deploy_load_balancer}
   load_balancer_health_check_url_path:
     type: string
+    required: true
     description: "Specify the path against which to run the health check on the compute nodes in the associated instance pool."
     title: "Load Balancer Health Check URL Path"
     default: /
@@ -554,7 +649,8 @@ variables:
     visible: ${deploy_fss}
   fss_export_path:
     type: string
-    description: "Specify the File Storage Service export path in OCI to mount to."
+    required: true
+    description: "Choose a folder name for your file system. On the compute nodes, this folder will be located in the /mnt directory."
     title: "FSS Export Path"
     default: /FSS
     visible: ${deploy_fss}
@@ -565,3 +661,13 @@ variables:
     title: "Subnet CIDR for FSS"
     default: "10.0.6.0/24"
     visible: ${deploy_fss}
+  enable_is_bootstrapped_fss:
+    type: boolean
+    required: true
+    description: "Check this box if you wish to enable set up for FSS on your compute nodes. The deployed FSS filesystem will be mounted from the compute nodes."
+    title: "Enable FSS Bootstrapping?"
+    default: true
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_fss}

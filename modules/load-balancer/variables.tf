@@ -7,7 +7,7 @@ variable "listener_protocol" {}
 variable "listener_port" {}
 variable "backend_set_policy" {}
 variable "load_balancer_specs" {}
-variable "subnet_displaynames_and_ocids" {}
+variable "subnet_display_names_and_ocids" {}
 # naming convention
 variable "region_key" {}
 variable "load_balancer" {}

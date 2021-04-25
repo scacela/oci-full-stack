@@ -1,5 +1,5 @@
-output "subnet_displaynames_and_ocids" {
-  value = local.subnet_displaynames_and_ocids
+output "subnet_display_names_and_ocids" {
+  value = local.subnet_display_names_and_ocids
 }
 output "vcn_ocid" {
   value = oci_core_vcn.vcn.id

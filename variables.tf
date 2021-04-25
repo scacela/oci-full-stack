@@ -14,17 +14,24 @@ variable "use_sgw" { default = true }
 variable "deploy_compute" { default = true }
 variable "compute_compartment_ocid" {}
 variable "ad_number" { default = 1 }
-variable "instance_configuration_shape" { default = "VM.Standard2.1" }
-variable "instance_configuration_ssh_public_key" { default = "" }
-variable "instance_configuration_shape_config_memory_in_gbs" { default = 32 }
-variable "instance_configuration_shape_config_ocpus" { default = 8 }
+variable "compute_shape" { default = "VM.Standard2.1" }
+variable "ssh_public_key" { default = "" }
+variable "compute_shape_config_memory_in_gbs" { default = 32 }
+variable "compute_shape_config_ocpus" { default = 8 }
 variable "instance_pool_node_count_initial" { default = 1 }
-variable "oracle_linux_os_version" { default = "7.9" }
+variable "compute_oracle_linux_os_version" { default = "7.9" }
+variable "enable_is_bootstrapped_http_server" { default = true }
+variable "http_app_tar_file_url" { default = "https://objectstorage.us-ashburn-1.oraclecloud.com/p/2YV4mHD0QhOeqRPjN_SGO3AmBPDmm_g-SnGUckh4HnM3nYwDsHICeG2_r8wqO9Sj/n/hpc_limited_availability/b/large_files/o/files.tar" }
+variable "enable_is_bootstrapped_ssh_key" { default = true }
+variable "enable_is_bootstrapped_vnc_server" { default = true }
+variable "vncpasswd" { default = "fullstack1" }
 # bastion
-variable "use_bastion" {default = true }
+variable "deploy_bastion" {default = true }
 variable "subnet_cidr_bastion" { default = "10.0.5.0/24" }
 variable "bastion_oracle_linux_os_version" { default = "7.9" }
 variable "bastion_shape" { default = "VM.Standard2.1" }
+variable "bastion_shape_config_memory_in_gbs" { default = 32 }
+variable "bastion_shape_config_ocpus" { default = 8 }
 # autoscale
 variable "deploy_autoscaling" { default = true }
 variable "autoscaling_compartment_ocid" { default = "" }
@@ -57,3 +64,4 @@ variable "deploy_fss" { default = true }
 variable "fss_compartment_ocid" { default = "" }
 variable "fss_export_path" { default = "/FSS" }
 variable "subnet_cidr_fss" { default = "10.0.6.0/24" }
+variable "enable_is_bootstrapped_fss" { default = true }
