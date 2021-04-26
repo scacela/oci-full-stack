@@ -53,6 +53,7 @@ export TF_VAR_scale_out_action_value=1
 export TF_VAR_scale_out_metric_type=CPU_UTILIZATION
 export TF_VAR_scale_out_threshold_operator="GT"
 export TF_VAR_scale_out_threshold_value=50
+export TF_VAR_auto_scaling_configuration_cool_down_in_seconds=300
 # load balancer
 export TF_VAR_deploy_load_balancer=true
 export TF_VAR_load_balancer_compartment_ocid=YOUR_COMPARTMENT_OCID
@@ -63,6 +64,7 @@ export TF_VAR_backend_port=80
 export TF_VAR_listener_port=80
 export TF_VAR_listener_protocol="TCP"
 export TF_VAR_load_balancer_health_check_url_path="/"
+export TF_VAR_listener_connection_configuration_idle_timeout_in_seconds=300
 # file storage
 export TF_VAR_deploy_fss=true
 export TF_VAR_fss_compartment_ocid=YOUR_COMPARTMENT_OCID

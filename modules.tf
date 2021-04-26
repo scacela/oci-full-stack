@@ -83,6 +83,7 @@ module "autoscale" {
   scale_out_metric_type = var.scale_out_metric_type
   scale_out_threshold_operator = var.scale_out_threshold_operator
   scale_out_threshold_value = var.scale_out_threshold_value
+  auto_scaling_configuration_cool_down_in_seconds = var.auto_scaling_configuration_cool_down_in_seconds
   computes_pool_specs = local.computes_pool_specs
   computes_solo_specs = local.computes_solo_specs
   instance_pool_ocids = module.compute[0].instance_pool_ocids
@@ -102,6 +103,7 @@ module "load-balancer" {
   listener_protocol = var.listener_protocol
   listener_port = var.listener_port
   backend_set_policy = var.backend_set_policy
+  listener_connection_configuration_idle_timeout_in_seconds = var.listener_connection_configuration_idle_timeout_in_seconds
   load_balancer_specs = local.load_balancer_specs
   subnet_display_names_and_ocids = module.network.subnet_display_names_and_ocids
   # naming convention

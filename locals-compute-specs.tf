@@ -60,7 +60,7 @@ locals {
       load_balancer = null
       is_pool = false
       image_ocid = local.bastion_image_ocid
-      shape = var.compute_shape
+      shape = var.bastion_shape
       shape_config_memory_in_gbs = var.bastion_shape_config_memory_in_gbs
       shape_config_ocpus = var.bastion_shape_config_ocpus
       is_bootstrapped_fss = true

@@ -32,4 +32,7 @@ resource "oci_load_balancer_listener" "lb_listener" {
     name = "${var.region_key}-${keys(var.load_balancer_specs)[count.index]}-${var.load_balancer_listener}"
     port = var.listener_port
     protocol = var.listener_protocol
+    connection_configuration {
+      idle_timeout_in_seconds = var.listener_connection_configuration_idle_timeout_in_seconds
+    }
 }

@@ -50,4 +50,5 @@ resource "oci_autoscaling_auto_scaling_configuration" "autoscaling_configuration
         }
     }
     display_name = "${var.region_key}-${keys(var.computes_pool_specs)[count.index]}-${var.compute_instance}-${var.autoscaling_configuration}"
+    cool_down_in_seconds = var.auto_scaling_configuration_cool_down_in_seconds
 }

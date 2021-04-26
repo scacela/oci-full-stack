@@ -15,6 +15,7 @@ variable "scale_out_action_value" {}
 variable "scale_out_metric_type" {}
 variable "scale_out_threshold_operator" {}
 variable "scale_out_threshold_value" {}
+variable "auto_scaling_configuration_cool_down_in_seconds" {}
 variable "computes_pool_specs" {}
 variable "computes_solo_specs" {}
 variable "instance_pool_ocids" {}

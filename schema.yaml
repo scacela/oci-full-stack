@@ -61,6 +61,7 @@ variableGroups:
   - ${scale_out_metric_type}
   - ${scale_out_threshold_operator}
   - ${scale_out_threshold_value}
+  - ${auto_scaling_configuration_cool_down_in_seconds}
 - title: "Load Balancer Layer"
   variables:
   - ${deploy_load_balancer}
@@ -72,6 +73,7 @@ variableGroups:
   - ${listener_port}
   - ${listener_protocol}
   - ${load_balancer_health_check_url_path}
+  - ${listener_connection_configuration_idle_timeout_in_seconds}
 - title: "File Storage Layer"
   variables:
   - ${deploy_fss}
@@ -496,7 +498,7 @@ variables:
     type: integer
     required: true
     description: "Select a threshhold value that will trigger a scale-in action. For CPU_UTILIZATION, this value will be a percentage."
-    title: "Scale-In Action Value"
+    title: "Scale-In Threshold Value"
     default: 10
     minimum: 0
     visible:
@@ -546,8 +548,19 @@ variables:
     type: integer
     required: true
     description: "Select a threshhold value that will trigger a scale-out action. For CPU_UTILIZATION, this value will be a percentage."
-    title: "Scale-Out Action Value"
+    title: "Scale-Out Threshold Value"
     default: 50
+    minimum: 0
+    visible:
+      and:
+        - ${deploy_compute}
+        - ${deploy_autoscaling}
+  auto_scaling_configuration_cool_down_in_seconds:
+    type: integer
+    required: true
+    description: "For threshold-based autoscaling policies, this value is the minimum period of time to wait between scaling actions. The cooldown period gives the system time to stabilize before rescaling."
+    title: "Cooldown Time"
+    default: 300
     minimum: 0
     visible:
       and:
@@ -632,6 +645,14 @@ variables:
     description: "Specify the path against which to run the health check on the compute nodes in the associated instance pool."
     title: "Load Balancer Health Check URL Path"
     default: /
+    visible: ${deploy_load_balancer}
+  listener_connection_configuration_idle_timeout_in_seconds:
+    type: integer
+    required: true
+    minimum: 0
+    description: "The maximum idle time, in seconds, allowed between two successive receive or two successive send operations between the client and backend servers."
+    title: "Listener Connection Configuration Idle Timeout in Seconds"
+    default: 300
     visible: ${deploy_load_balancer}
 # file_storage_layer
   deploy_fss:

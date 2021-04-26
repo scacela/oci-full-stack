@@ -49,6 +49,7 @@ variable "scale_out_action_value" { default = 1 }
 variable "scale_out_metric_type" { default = "CPU_UTILIZATION" }
 variable "scale_out_threshold_operator" { default = "GT" }
 variable "scale_out_threshold_value" { default = 50  }
+variable "auto_scaling_configuration_cool_down_in_seconds" { default = 300 }
 # load balancer
 variable "deploy_load_balancer" { default = true }
 variable "load_balancer_compartment_ocid" { default = "" }
@@ -59,6 +60,7 @@ variable "backend_port" { default = 80 }
 variable "listener_port" { default = 80 }
 variable "listener_protocol" { default = "TCP" }
 variable "load_balancer_health_check_url_path" { default = "/" }
+variable "listener_connection_configuration_idle_timeout_in_seconds" { default = 300 }
 # file storage
 variable "deploy_fss" { default = true }
 variable "fss_compartment_ocid" { default = "" }
