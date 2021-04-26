@@ -52,15 +52,15 @@ variableGroups:
   - ${autoscaling_node_count_max}
   - ${autoscaling_node_count_min}
   - ${scale_in_action_type} # only one value is supported in this stack: CHANGE_COUNT_BY
-  - ${scale_in_action_value}
   - ${scale_in_metric_type}
   - ${scale_in_threshold_operator}
   - ${scale_in_threshold_value}
+  - ${scale_in_action_value}
   - ${scale_out_action_type} # only one value is supported in this stack: CHANGE_COUNT_BY
-  - ${scale_out_action_value}
   - ${scale_out_metric_type}
   - ${scale_out_threshold_operator}
   - ${scale_out_threshold_value}
+  - ${scale_out_action_value}
   - ${auto_scaling_configuration_cool_down_in_seconds}
 - title: "Load Balancer Layer"
   variables:
@@ -372,7 +372,7 @@ variables:
     type: boolean
     required: true
     description: "Check this box if you wish to enable set up for SSH Key on your compute nodes. The generated SSH key will be placed at ~/.ssh/id_rsa on the compute nodes."
-    title: "Enable FSS Bootstrapping?"
+    title: "Enable SSH Key Bootstrapping?"
     default: true
     visible: ${deploy_compute}
   enable_is_bootstrapped_vnc_server:
