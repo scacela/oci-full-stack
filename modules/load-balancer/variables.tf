@@ -6,7 +6,7 @@ variable "load_balancer_shape" {}
 variable "listener_protocol" {}
 variable "listener_port" {}
 variable "backend_set_policy" {}
-variable "listener_connection_configuration_idle_timeout_in_seconds"
+variable "listener_connection_configuration_idle_timeout_in_seconds" {}
 variable "load_balancer_specs" {}
 variable "subnet_display_names_and_ocids" {}
 # naming convention
