@@ -13,11 +13,13 @@ Optionally bootstrap the hosts in each compute tier with VNC Server, a sample HT
 	<p></p>
 	Provisions Instance Pools that generate Compute Instances that comprise the compute tiers. Each compute tier is provisioned within its own corresponding subnet. The compute tiers are:
 		<p></p>
-		a. The <b>Web</b> tier. This tier <b>uses</b> public IP addresses.
+		a. The <b>Web</b> tier. This tier <b>prohibits</b> public IP addresses.
 		<p></p>
-		b. The <b>App</b> tier. This tier <b>uses</b> public IP addresses.
+		b. The <b>App</b> tier. This tier <b>prohibits</b> public IP addresses.
 		<p></p>
 		c. The <b>Database</b> tier. This compute tier <b>prohibits</b> Public IP addresses.
+		<p></p>
+		d. The <b>Bastion</b> tier (optional). This compute tier is implemented as a single Compute Instance rather than as an Instance Pool. This compute tier <b>uses</b> Public IP addresses.
 </details>
 <details>
 <summary>Load Balancer layer (optional)</summary>
@@ -52,13 +54,6 @@ Provisions an Autoscaling Configuration for each compute tier that associates wi
 For providing access to a filesystem storage space that is shared between Compute Instances across all compute tiers.
 <p></p>
 Provisions File Storage Service resources within a designated subnet that is also provisioned as part of this layer. The subnet <b>prohibits</b> public IP addresses. Instances that are generated as part of the instance pool in any compute tier connects to the file storage service.
-</details>
-<details>
-<summary>Bastion layer (optional)</summary>
-<p></p>
-For accessing the stack.
-<p></p>
-This layer provisions a Compute Instance with a public IP address to serve as a bastion node, within a designated subnet that is also provisioned as part of this layer. The bastion node has a public IP address.
 </details>
 <details>
 <summary>A new SSH key pair</summary>
