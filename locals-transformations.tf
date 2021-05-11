@@ -3,7 +3,7 @@ locals {
   # deploy bastion?
   deploy_bastion = var.deploy_compute && var.deploy_bastion ? true : false
   # merge compute_collective_specs with bastion_specs if deploy bastion
-  compute_collective_specs = var.deploy_bastion ? merge(local.compute_specs, local.bastion_specs) : toset(local.bastion_specs)
+  compute_collective_specs = var.deploy_bastion ? merge(local.compute_specs, local.bastion_specs) : toset(local.compute_specs)
 }
 # infrastructure entities that will each be deployed as part of an instance pool
 locals {
