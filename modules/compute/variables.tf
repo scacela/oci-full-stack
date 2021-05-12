@@ -12,7 +12,6 @@ variable "computes_load_balanced" {}
 variable "computes_load_balanced_and_load_balancer" {}
 variable "deploy_load_balancer" {}
 variable "instance_pool_node_count_initial" {}
-variable "image_ocid" {}
 variable "mount_target_private_ip" {}
 variable "fss_export_path" {}
 variable "deploy_fss" {}

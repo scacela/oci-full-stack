@@ -36,7 +36,6 @@ module "compute" {
   computes_load_balanced_and_load_balancer = local.computes_load_balanced_and_load_balancer
   deploy_load_balancer = var.deploy_load_balancer
   instance_pool_node_count_initial = var.instance_pool_node_count_initial
-  image_ocid = local.image_ocid
   mount_target_private_ip = var.deploy_fss ? module.file-storage[0].mount_target_private_ip : null
   fss_export_path = var.fss_export_path
   deploy_fss = var.deploy_fss
